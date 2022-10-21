@@ -35,6 +35,7 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.tensorflow.lite.examples.poseestimation.camera.CameraSource
+import org.tensorflow.lite.examples.poseestimation.data.BodyPart
 import org.tensorflow.lite.examples.poseestimation.data.Device
 import org.tensorflow.lite.examples.poseestimation.data.Person
 import org.tensorflow.lite.examples.poseestimation.ml.*
@@ -57,6 +58,10 @@ class MainActivity : AppCompatActivity() {
 
     /** Default device is CPU */
     private var device = Device.CPU
+
+    // jhyeon: joint 정보 추가
+    private lateinit var tvLeftKnee: TextView
+    private lateinit var tvRightKnee: TextView
 
     private lateinit var tvScore: TextView
     private lateinit var tvFPS: TextView
@@ -136,6 +141,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         // keep screen on while app is running
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        tvLeftKnee = findViewById(R.id.tvLeftKnee)
+        tvRightKnee = findViewById(R.id.tvRightKnee)
         tvScore = findViewById(R.id.tvScore)
         tvFPS = findViewById(R.id.tvFps)
         spnModel = findViewById(R.id.spnModel)
@@ -209,6 +216,27 @@ class MainActivity : AppCompatActivity() {
                                     R.string.tfe_pe_tv_classification_value,
                                     convertPoseLabels(if (it.size >= 3) it[2] else null)
                                 )
+                            }
+                        }
+
+                        override fun onPersonListener(person: Person) {
+                            // jhyeon: 왼쪽 무릎 (13)
+                            val leftKnee = person.keyPoints.firstOrNull {
+                                it.bodyPart.position == BodyPart.LEFT_KNEE.position
+                            }
+                            leftKnee?.let {
+                                tvLeftKnee.text = getString(R.string.tfe_pe_tv_joint,
+                                    it.bodyPart.name, it.bodyPart.position,
+                                    it.score, it.coordinate.x, it.coordinate.y)
+                            }
+                            // jhyeon: 오른쪽 무릎 (14)
+                            val rightKnee = person.keyPoints.firstOrNull {
+                                it.bodyPart.position == BodyPart.RIGHT_KNEE.position
+                            }
+                            rightKnee?.let {
+                                tvRightKnee.text = getString(R.string.tfe_pe_tv_joint,
+                                    it.bodyPart.name, it.bodyPart.position,
+                                    it.score, it.coordinate.x, it.coordinate.y)
                             }
                         }
                     }).apply {

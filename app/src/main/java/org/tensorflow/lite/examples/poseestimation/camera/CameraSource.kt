@@ -263,8 +263,10 @@ class CameraSource(
         }
 
         // if the model returns only one item, show that item's score.
+        // jhyeon: BodyPart별 information
         if (persons.isNotEmpty()) {
             listener?.onDetectedInfo(persons[0].score, classificationResult)
+            listener?.onPersonListener(persons[0])
         }
         visualize(persons, bitmap)
     }
@@ -322,5 +324,6 @@ class CameraSource(
     interface CameraSourceListener {
         fun onFPSListener(fps: Int)
         fun onDetectedInfo(personScore: Float?, poseLabels: List<Pair<String, Float>>?)
+        fun onPersonListener(person: Person)
     }
 }

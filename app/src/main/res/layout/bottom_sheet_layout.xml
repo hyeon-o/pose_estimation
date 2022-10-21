@@ -26,6 +26,16 @@
         android:src="@drawable/icn_chevron_up" />
 
     <TextView
+        android:id="@+id/tvLeftKnee"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <TextView
+        android:id="@+id/tvRightKnee"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <TextView
         android:id="@+id/tvFps"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
