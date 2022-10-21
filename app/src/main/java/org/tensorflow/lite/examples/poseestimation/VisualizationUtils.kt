@@ -29,7 +29,7 @@ object VisualizationUtils {
     private const val CIRCLE_RADIUS = 6f
 
     /** Width of line used to connected two keypoints.  */
-    private const val LINE_WIDTH = 4f
+    private const val LINE_WIDTH = 2f
 
     /** The text size of the person id that will be displayed when the tracker is available.  */
     private const val PERSON_ID_TEXT_SIZE = 30f
@@ -39,10 +39,10 @@ object VisualizationUtils {
 
     /** Pair of keypoints to draw lines between.  */
     private val bodyJoints = listOf(
-        Pair(BodyPart.NOSE, BodyPart.LEFT_EYE),
-        Pair(BodyPart.NOSE, BodyPart.RIGHT_EYE),
-        Pair(BodyPart.LEFT_EYE, BodyPart.LEFT_EAR),
-        Pair(BodyPart.RIGHT_EYE, BodyPart.RIGHT_EAR),
+//        Pair(BodyPart.NOSE, BodyPart.LEFT_EYE),
+//        Pair(BodyPart.NOSE, BodyPart.RIGHT_EYE),
+//        Pair(BodyPart.LEFT_EYE, BodyPart.LEFT_EAR),
+//        Pair(BodyPart.RIGHT_EYE, BodyPart.RIGHT_EAR),
         Pair(BodyPart.NOSE, BodyPart.LEFT_SHOULDER),
         Pair(BodyPart.NOSE, BodyPart.RIGHT_SHOULDER),
         Pair(BodyPart.LEFT_SHOULDER, BodyPart.LEFT_ELBOW),
@@ -67,12 +67,12 @@ object VisualizationUtils {
     ): Bitmap {
         val paintCircle = Paint().apply {
             strokeWidth = CIRCLE_RADIUS
-            color = Color.RED
+            color = Color.WHITE
             style = Paint.Style.FILL
         }
         val paintLine = Paint().apply {
             strokeWidth = LINE_WIDTH
-            color = Color.RED
+            color = Color.WHITE
             style = Paint.Style.STROKE
         }
 
@@ -106,12 +106,16 @@ object VisualizationUtils {
                 originalSizeCanvas.drawLine(pointA.x, pointA.y, pointB.x, pointB.y, paintLine)
             }
 
-            person.keyPoints.forEach { point ->
-                originalSizeCanvas.drawCircle(
-                    point.coordinate.x,
-                    point.coordinate.y,
-                    CIRCLE_RADIUS,
-                    paintCircle
+            person.keyPoints
+                .filter {
+                    it.bodyPart !in arrayOf(BodyPart.LEFT_EYE, BodyPart.RIGHT_EYE, BodyPart.LEFT_EAR, BodyPart.RIGHT_EAR)
+                }
+                .forEach { point ->
+                    originalSizeCanvas.drawCircle(
+                        point.coordinate.x,
+                        point.coordinate.y,
+                        CIRCLE_RADIUS,
+                        paintCircle
                 )
             }
         }
