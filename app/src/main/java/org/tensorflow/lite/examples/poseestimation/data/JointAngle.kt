@@ -16,6 +16,4 @@ limitations under the License.
 
 package org.tensorflow.lite.examples.poseestimation.data
 
-import android.graphics.PointF
-
 data class JointAngle(val anglePart: AnglePart, val angle: Double)

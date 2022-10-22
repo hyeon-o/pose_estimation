@@ -24,6 +24,7 @@ import android.os.Bundle
 import android.os.Process
 import android.view.SurfaceView
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
@@ -35,10 +36,7 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.tensorflow.lite.examples.poseestimation.camera.CameraSource
-import org.tensorflow.lite.examples.poseestimation.data.AnglePart
-import org.tensorflow.lite.examples.poseestimation.data.BodyPart
-import org.tensorflow.lite.examples.poseestimation.data.Device
-import org.tensorflow.lite.examples.poseestimation.data.Person
+import org.tensorflow.lite.examples.poseestimation.data.*
 import org.tensorflow.lite.examples.poseestimation.ml.*
 
 class MainActivity : AppCompatActivity() {
@@ -61,8 +59,8 @@ class MainActivity : AppCompatActivity() {
     private var device = Device.CPU
 
     // jhyeon: joint 정보 추가
-    private lateinit var tvLeftKnee: TextView
-    private lateinit var tvRightKnee: TextView
+    private lateinit var listJoint: LinearLayout
+    private lateinit var jointTvs: MutableMap<Int, TextView>
 
     private lateinit var tvScore: TextView
     private lateinit var tvFPS: TextView
@@ -142,8 +140,19 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         // keep screen on while app is running
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        tvLeftKnee = findViewById(R.id.tvLeftKnee)
-        tvRightKnee = findViewById(R.id.tvRightKnee)
+        listJoint = findViewById(R.id.listJoint)
+        jointTvs = mutableMapOf()
+        enumValues<AnglePart>().forEach {
+            val tv = TextView(this).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                text = "Calculate yet."
+            }
+            jointTvs[it.position] = tv
+            listJoint.addView(tv)
+        }
         tvScore = findViewById(R.id.tvScore)
         tvFPS = findViewById(R.id.tvFps)
         spnModel = findViewById(R.id.spnModel)
@@ -221,35 +230,22 @@ class MainActivity : AppCompatActivity() {
                         }
 
                         override fun onPersonListener(person: Person) {
-                            // jhyeon: 왼쪽 무릎 (13)
-                            val leftKnee = person.keyPoints.firstOrNull {
-                                it.bodyPart.position == BodyPart.LEFT_KNEE.position
-                            }
-                            val leftKneeAngle = person.jointAngles?.firstOrNull {
-                                it.anglePart.position == AnglePart.LEFT_KNEE.position
-                            }
-                            if (leftKnee != null && leftKneeAngle != null) {
-                                tvLeftKnee.text = getString(
-                                    R.string.tfe_pe_tv_joint,
-                                    leftKnee.bodyPart.name, leftKnee.bodyPart.position,
-                                    leftKnee.coordinate.x, leftKnee.coordinate.y, leftKnee.score,
-                                    leftKneeAngle.angle
-                                )
-                            }
-                            // jhyeon: 오른쪽 무릎 (14)
-                            val rightKnee = person.keyPoints.firstOrNull {
-                                it.bodyPart.position == BodyPart.RIGHT_KNEE.position
-                            }
-                            val rightKneeAngle = person.jointAngles?.firstOrNull {
-                                it.anglePart.position == AnglePart.RIGHT_KNEE.position
-                            }
-                            if (rightKnee != null && rightKneeAngle != null) {
-                                tvRightKnee.text = getString(
-                                    R.string.tfe_pe_tv_joint,
-                                    rightKnee.bodyPart.name, rightKnee.bodyPart.position,
-                                    rightKnee.coordinate.x, rightKnee.coordinate.y, rightKnee.score,
-                                    rightKneeAngle.angle
-                                )
+                            jointTvs.forEach { (idx, tv) ->
+                                val keyPoint = person.keyPoints[idx]
+                                val jointAngle = person.jointAngles?.get(idx)
+                                if (keyPoint != null && jointAngle != null) {
+                                    runOnUiThread {
+                                        tv.text = getString(
+                                            R.string.tfe_pe_tv_joint,
+                                            keyPoint.bodyPart.name,
+                                            keyPoint.bodyPart.position,
+                                            keyPoint.coordinate.x,
+                                            keyPoint.coordinate.y,
+                                            keyPoint.score,
+                                            jointAngle.angle
+                                        )
+                                    }
+                                }
                             }
                         }
                     }).apply {

@@ -20,8 +20,10 @@ import android.graphics.RectF
 
 data class Person(
     var id: Int = -1, // default id is -1
-    val keyPoints: List<KeyPoint>,
-    val jointAngles: List<JointAngle>? = null,
+//    val keyPoints: List<KeyPoint>,
+//    val jointAngles: List<JointAngle>? = null,
+    val keyPoints: Map<Int, KeyPoint>,
+    val jointAngles: Map<Int, JointAngle>? = null,
     val boundingBox: RectF? = null, // Only MoveNet MultiPose return bounding box.
     val score: Float
 )

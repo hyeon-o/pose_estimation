@@ -51,7 +51,7 @@ class PoseClassifier(
     fun classify(person: Person?): List<Pair<String, Float>> {
         // Preprocess the pose estimation result to a flat array
         val inputVector = FloatArray(input[1])
-        person?.keyPoints?.forEachIndexed { index, keyPoint ->
+        person?.keyPoints?.forEach { (index, keyPoint) ->
             inputVector[index * 3] = keyPoint.coordinate.y
             inputVector[index * 3 + 1] = keyPoint.coordinate.x
             inputVector[index * 3 + 2] = keyPoint.score

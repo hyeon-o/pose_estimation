@@ -79,16 +79,16 @@ class KeyPointsTracker(
     fun oks(person1: Person, person2: Person): Float {
         if (config.keyPointsTrackerParams == null) return 0f
         person2.keyPoints.let { keyPoints ->
-            val boxArea = area(keyPoints) + 1e-6
+            val boxArea = area(keyPoints.values.toList()) + 1e-6
             var oksTotal = 0f
             var numValidKeyPoints = 0
 
-            person1.keyPoints.forEachIndexed { index, _ ->
-                val poseKpt = person1.keyPoints[index]
-                val trackKpt = person2.keyPoints[index]
+            person1.keyPoints.forEach { (index, _) ->
+                val poseKpt = person1.keyPoints[index]!!
+                val trackKpt = person2.keyPoints[index]!!
                 val threshold = config.keyPointsTrackerParams.keypointThreshold
                 if (poseKpt.score < threshold || trackKpt.score < threshold) {
-                    return@forEachIndexed
+                    return@forEach
                 }
                 numValidKeyPoints += 1
                 val dSquared: Float =

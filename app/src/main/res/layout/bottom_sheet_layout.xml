@@ -25,15 +25,21 @@
         android:contentDescription="@null"
         android:src="@drawable/icn_chevron_up" />
 
-    <TextView
-        android:id="@+id/tvLeftKnee"
+    <LinearLayout
+        android:id="@+id/listJoint"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
 
-    <TextView
-        android:id="@+id/tvRightKnee"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+<!--    <TextView-->
+<!--        android:id="@+id/tvLeftKnee"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent" />-->
+
+<!--    <TextView-->
+<!--        android:id="@+id/tvRightKnee"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent" />-->
 
     <TextView
         android:id="@+id/tvBlank"

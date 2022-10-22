@@ -98,8 +98,8 @@ class MoveNet(private val interpreter: Interpreter, private var gpuDelegate: Gpu
         var totalScore = 0f
 
         val numKeyPoints = outputShape[2]
-        val keyPoints = mutableListOf<KeyPoint>()
-        val jointAngles = mutableListOf<JointAngle>()
+        val keyPoints = mutableMapOf<Int, KeyPoint>()
+        val jointAngles = mutableMapOf<Int, JointAngle>()
 
         cropRegion?.run {
             val rect = RectF(
@@ -136,15 +136,13 @@ class MoveNet(private val interpreter: Interpreter, private var gpuDelegate: Gpu
                     positions.add(x)
                     positions.add(y)
                     val score = output[idx * 3 + 2]
-                    keyPoints.add(
-                        KeyPoint(
-                            BodyPart.fromInt(idx),
-                            PointF(
-                                x,
-                                y
-                            ),
-                            score
-                        )
+                    keyPoints[idx] = KeyPoint(
+                        BodyPart.fromInt(idx),
+                        PointF(
+                            x,
+                            y
+                        ),
+                        score
                     )
                     totalScore += score
                 }
@@ -154,7 +152,7 @@ class MoveNet(private val interpreter: Interpreter, private var gpuDelegate: Gpu
 
             matrix.postTranslate(rect.left, rect.top)
             matrix.mapPoints(points)
-            keyPoints.forEachIndexed { index, keyPoint ->
+            keyPoints.forEach { (index, keyPoint) ->
                 keyPoint.coordinate =
                     PointF(
                         points[index * 2],
@@ -163,23 +161,17 @@ class MoveNet(private val interpreter: Interpreter, private var gpuDelegate: Gpu
             }
 
             // jhyeon: joint angle 계산
-            // list 형태라 이짓거리를.... ,,, map으로 바꾸기 시급..
-            fun findKeyPoint(bodyPart: BodyPart): KeyPoint {
-                return keyPoints.firstOrNull {
-                    it.bodyPart.position == bodyPart.position
-                }!!
-            }
             enumValues<AnglePart>().forEach {
                 val angle = calculateAngle(
-                    findKeyPoint(it.points.first).coordinate,
-                    findKeyPoint(it.points.second).coordinate,
-                    findKeyPoint(it.points.third).coordinate
+                    keyPoints[it.points.first.position]!!.coordinate,
+                    keyPoints[it.points.second.position]!!.coordinate,
+                    keyPoints[it.points.third.position]!!.coordinate
                 )
-                jointAngles.add(JointAngle(it, angle))
+                jointAngles[it.position] = JointAngle(it, angle)
             }
 
             // new crop region
-            cropRegion = determineRectF(keyPoints, bitmap.width, bitmap.height)
+            cropRegion = determineRectF(keyPoints.values.toList(), bitmap.width, bitmap.height)
         }
         lastInferenceTimeNanos =
             SystemClock.elapsedRealtimeNanos() - inferenceStartTimeNanos

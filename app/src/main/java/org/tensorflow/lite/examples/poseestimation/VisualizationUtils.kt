@@ -117,8 +117,8 @@ object VisualizationUtils {
 
             // joint 간 선
             bodyJoints.forEach {
-                val pointA = person.keyPoints[it.first.position].coordinate
-                val pointB = person.keyPoints[it.second.position].coordinate
+                val pointA = person.keyPoints[it.first.position]!!.coordinate
+                val pointB = person.keyPoints[it.second.position]!!.coordinate
                 val paintLine = when(it.third) {
                     PartType.Left -> paintLineLeft
                     PartType.Middle -> paintLineMiddle
@@ -128,7 +128,7 @@ object VisualizationUtils {
             }
 
             // joint 동그라미
-            person.keyPoints
+            person.keyPoints.values
                 .filter {
                     it.bodyPart !in arrayOf(BodyPart.LEFT_EYE, BodyPart.RIGHT_EYE, BodyPart.LEFT_EAR, BodyPart.RIGHT_EAR)
                 }
