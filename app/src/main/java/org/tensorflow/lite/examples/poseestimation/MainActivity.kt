@@ -120,15 +120,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private var changeTrackerListener = object : AdapterView.OnItemSelectedListener {
-        override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-            changeTracker(position)
-        }
-
-        override fun onNothingSelected(parent: AdapterView<*>?) {
-            // do nothing
-        }
-    }
+//    private var changeTrackerListener = object : AdapterView.OnItemSelectedListener {
+//        override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+//            changeTracker(position)
+//        }
+//
+//        override fun onNothingSelected(parent: AdapterView<*>?) {
+//            // do nothing
+//        }
+//    }
 
     private var setClassificationListener =
         CompoundButton.OnCheckedChangeListener { _, isChecked ->
@@ -275,6 +275,7 @@ class MainActivity : AppCompatActivity() {
 
     // Initialize spinners to let user select model/accelerator/tracker.
     private fun initSpinner() {
+        // Model 선택
         ArrayAdapter.createFromResource(
             this,
             R.array.tfe_pe_models_array,
@@ -287,6 +288,7 @@ class MainActivity : AppCompatActivity() {
             spnModel.onItemSelectedListener = changeModelListener
         }
 
+        // Device 선택
         ArrayAdapter.createFromResource(
             this,
             R.array.tfe_pe_device_name, android.R.layout.simple_spinner_item
@@ -297,15 +299,16 @@ class MainActivity : AppCompatActivity() {
             spnDevice.onItemSelectedListener = changeDeviceListener
         }
 
-        ArrayAdapter.createFromResource(
-            this,
-            R.array.tfe_pe_tracker_array, android.R.layout.simple_spinner_item
-        ).also { adaper ->
-            adaper.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-
-            spnTracker.adapter = adaper
-            spnTracker.onItemSelectedListener = changeTrackerListener
-        }
+//        // Tracker 선택 (MultiPose)
+//        ArrayAdapter.createFromResource(
+//            this,
+//            R.array.tfe_pe_tracker_array, android.R.layout.simple_spinner_item
+//        ).also { adaper ->
+//            adaper.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+//
+//            spnTracker.adapter = adaper
+//            spnTracker.onItemSelectedListener = changeTrackerListener
+//        }
     }
 
     // Change model when app is running
@@ -327,16 +330,16 @@ class MainActivity : AppCompatActivity() {
         createPoseEstimator()
     }
 
-    // Change tracker for Movenet MultiPose model
-    private fun changeTracker(position: Int) {
-        cameraSource?.setTracker(
-            when (position) {
-                1 -> TrackerType.BOUNDING_BOX
-                2 -> TrackerType.KEYPOINTS
-                else -> TrackerType.OFF
-            }
-        )
-    }
+//    // Change tracker for Movenet MultiPose model
+//    private fun changeTracker(position: Int) {
+//        cameraSource?.setTracker(
+//            when (position) {
+//                1 -> TrackerType.BOUNDING_BOX
+//                2 -> TrackerType.KEYPOINTS
+//                else -> TrackerType.OFF
+//            }
+//        )
+//    }
 
     private fun createPoseEstimator() {
         // For MoveNet MultiPose, hide score and disable pose classifier as the model returns
@@ -356,28 +359,28 @@ class MainActivity : AppCompatActivity() {
                 showTracker(false)
                 MoveNet.create(this, device, ModelType.Thunder)
             }
-            2 -> {
-                // MoveNet (Lightning) MultiPose
-                showPoseClassifier(false)
-                showDetectionScore(false)
-                // Movenet MultiPose Dynamic does not support GPUDelegate
-                if (device == Device.GPU) {
-                    showToast(getString(R.string.tfe_pe_gpu_error))
-                }
-                showTracker(true)
-                MoveNetMultiPose.create(
-                    this,
-                    device,
-                    Type.Dynamic
-                )
-            }
-            3 -> {
-                // PoseNet (SinglePose)
-                showPoseClassifier(true)
-                showDetectionScore(true)
-                showTracker(false)
-                PoseNet.create(this, device)
-            }
+//            2 -> {
+//                // MoveNet (Lightning) MultiPose
+//                showPoseClassifier(false)
+//                showDetectionScore(false)
+//                // Movenet MultiPose Dynamic does not support GPUDelegate
+//                if (device == Device.GPU) {
+//                    showToast(getString(R.string.tfe_pe_gpu_error))
+//                }
+//                showTracker(true)
+//                MoveNetMultiPose.create(
+//                    this,
+//                    device,
+//                    Type.Dynamic
+//                )
+//            }
+//            3 -> {
+//                // PoseNet (SinglePose)
+//                showPoseClassifier(true)
+//                showDetectionScore(true)
+//                showTracker(false)
+//                PoseNet.create(this, device)
+//            }
             else -> {
                 null
             }

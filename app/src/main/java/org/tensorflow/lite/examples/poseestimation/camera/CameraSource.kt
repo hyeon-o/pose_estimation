@@ -36,10 +36,8 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import org.tensorflow.lite.examples.poseestimation.VisualizationUtils
 import org.tensorflow.lite.examples.poseestimation.YuvToRgbConverter
 import org.tensorflow.lite.examples.poseestimation.data.Person
-import org.tensorflow.lite.examples.poseestimation.ml.MoveNetMultiPose
 import org.tensorflow.lite.examples.poseestimation.ml.PoseClassifier
 import org.tensorflow.lite.examples.poseestimation.ml.PoseDetector
-import org.tensorflow.lite.examples.poseestimation.ml.TrackerType
 import java.util.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -197,13 +195,13 @@ class CameraSource(
         }
     }
 
-    /**
-     * Set Tracker for Movenet MuiltiPose model.
-     */
-    fun setTracker(trackerType: TrackerType) {
-        isTrackerEnabled = trackerType != TrackerType.OFF
-        (this.detector as? MoveNetMultiPose)?.setTracker(trackerType)
-    }
+//    /**
+//     * Set Tracker for Movenet MuiltiPose model.
+//     */
+//    fun setTracker(trackerType: TrackerType) {
+//        isTrackerEnabled = trackerType != TrackerType.OFF
+//        (this.detector as? MoveNetMultiPose)?.setTracker(trackerType)
+//    }
 
     fun resume() {
         imageReaderThread = HandlerThread("imageReaderThread").apply { start() }
