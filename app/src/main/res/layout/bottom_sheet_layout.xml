@@ -26,23 +26,23 @@
         android:src="@drawable/icn_chevron_up" />
 
     <LinearLayout
-        android:id="@+id/listJoint"
+        android:id="@+id/listJointAngle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical" />
 
-<!--    <TextView-->
-<!--        android:id="@+id/tvLeftKnee"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent" />-->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/tfe_pe_tv_blank"/>
 
-<!--    <TextView-->
-<!--        android:id="@+id/tvRightKnee"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent" />-->
+    <LinearLayout
+        android:id="@+id/listKeyPoint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
 
     <TextView
-        android:id="@+id/tvBlank"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:text="@string/tfe_pe_tv_blank"/>

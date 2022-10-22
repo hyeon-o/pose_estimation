@@ -361,12 +361,18 @@ class MoveNet(private val interpreter: Interpreter, private var gpuDelegate: Gpu
     }
 
     private fun calculateAngle(p1: PointF, p2: PointF, p3: PointF): Double {
-        val p12 = sqrt((p1.x - p2.x).toDouble().pow(2.0)) + sqrt((p1.y - p2.y).toDouble().pow(2.0))
-        val p23 = sqrt((p2.x - p3.x).toDouble().pow(2.0)) + sqrt((p2.y - p3.y).toDouble().pow(2.0))
-        val p31 = sqrt((p3.x - p1.x).toDouble().pow(2.0)) + sqrt((p3.y - p1.y).toDouble().pow(2.0))
+//        val p12 = sqrt((p1.x - p2.x).toDouble().pow(2.0)) + sqrt((p1.y - p2.y).toDouble().pow(2.0))
+//        val p23 = sqrt((p2.x - p3.x).toDouble().pow(2.0)) + sqrt((p2.y - p3.y).toDouble().pow(2.0))
+//        val p31 = sqrt((p3.x - p1.x).toDouble().pow(2.0)) + sqrt((p3.y - p1.y).toDouble().pow(2.0))
+//
+//        // float radian = (float) Math.acos((p12*p12 + p23*p23 - p31*p31) / (2 * p12 * p23));
+//        val radian = acos(((p12 * p12) + (p23 * p23) - (p31 * p31)) / (2 * p12 * p23))
+//        val degree = radian / Math.PI * 180
+//        return degree
+        val radians = atan2(p3.y-p2.y, p3.x-p2.x) - atan2(p1.y-p2.y, p1.x-p2.x)
+        var angle = abs(radians * 180.0 / PI)
 
-        val radian = acos(((p12 * p12) + (p23 * p23) - (p31 * p31)) / (2 * p12 * p23))
-        val degree = radian / Math.PI * 180
-        return degree
+        if (angle > 180.0) angle = 360 - angle
+        return angle
     }
 }

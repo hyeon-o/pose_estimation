@@ -129,16 +129,15 @@ object VisualizationUtils {
 
             // joint 동그라미
             person.keyPoints.values
-                .filter {
-                    it.bodyPart !in arrayOf(BodyPart.LEFT_EYE, BodyPart.RIGHT_EYE, BodyPart.LEFT_EAR, BodyPart.RIGHT_EAR)
-                }
                 .forEach { point ->
-                    originalSizeCanvas.drawCircle(
-                        point.coordinate.x,
-                        point.coordinate.y,
-                        CIRCLE_RADIUS,
-                        paintCircle
-                )
+                    if (point.bodyPart.isShow) {
+                        originalSizeCanvas.drawCircle(
+                            point.coordinate.x,
+                            point.coordinate.y,
+                            CIRCLE_RADIUS,
+                            paintCircle
+                        )
+                    }
             }
         }
         return output

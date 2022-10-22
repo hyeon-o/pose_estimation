@@ -59,8 +59,10 @@ class MainActivity : AppCompatActivity() {
     private var device = Device.CPU
 
     // jhyeon: joint 정보 추가
-    private lateinit var listJoint: LinearLayout
-    private lateinit var jointTvs: MutableMap<Int, TextView>
+    private lateinit var listJointAngle: LinearLayout
+    private lateinit var jointAngleTvs: MutableMap<Int, TextView>
+    private lateinit var listKeyPoint: LinearLayout
+    private lateinit var keyPointTvs: MutableMap<Int, TextView>
 
     private lateinit var tvScore: TextView
     private lateinit var tvFPS: TextView
@@ -140,18 +142,31 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         // keep screen on while app is running
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        listJoint = findViewById(R.id.listJoint)
-        jointTvs = mutableMapOf()
+        listJointAngle = findViewById(R.id.listJointAngle)
+        jointAngleTvs = mutableMapOf()
         enumValues<AnglePart>().forEach {
             val tv = TextView(this).apply {
                 layoutParams = LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT
                 )
-                text = "Calculate yet."
+                text = "${it.name} (${it.position}): Not calculate yet."
             }
-            jointTvs[it.position] = tv
-            listJoint.addView(tv)
+            jointAngleTvs[it.position] = tv
+            listJointAngle.addView(tv)
+        }
+        listKeyPoint = findViewById(R.id.listKeyPoint)
+        keyPointTvs = mutableMapOf()
+        enumValues<BodyPart>().forEach {
+            val tv = TextView(this).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                text = "${it.name} (${it.position}): Not calculate yet."
+            }
+            keyPointTvs[it.position] = tv
+            listKeyPoint.addView(tv)
         }
         tvScore = findViewById(R.id.tvScore)
         tvFPS = findViewById(R.id.tvFps)
@@ -230,20 +245,36 @@ class MainActivity : AppCompatActivity() {
                         }
 
                         override fun onPersonListener(person: Person) {
-                            jointTvs.forEach { (idx, tv) ->
-                                val keyPoint = person.keyPoints[idx]
+                            // joint angle information
+                            jointAngleTvs.forEach { (idx, tv) ->
                                 val jointAngle = person.jointAngles?.get(idx)
-                                if (keyPoint != null && jointAngle != null) {
+                                jointAngle?.let {
                                     runOnUiThread {
                                         tv.text = getString(
-                                            R.string.tfe_pe_tv_joint,
-                                            keyPoint.bodyPart.name,
-                                            keyPoint.bodyPart.position,
-                                            keyPoint.coordinate.x,
-                                            keyPoint.coordinate.y,
-                                            keyPoint.score,
+                                            R.string.tfe_pe_tv_joint_angle,
+                                            jointAngle.anglePart.name,
+                                            jointAngle.anglePart.position,
                                             jointAngle.angle
                                         )
+                                    }
+                                }
+                            }
+
+                            // key point information
+                            keyPointTvs.forEach { (idx, tv) ->
+                                val keyPoint = person.keyPoints[idx]
+                                keyPoint?.let {
+                                    if (keyPoint.bodyPart.isShow) {
+                                        runOnUiThread {
+                                            tv.text = getString(
+                                                R.string.tfe_pe_tv_key_point,
+                                                it.bodyPart.name,
+                                                it.bodyPart.position,
+                                                it.coordinate.x,
+                                                it.coordinate.y,
+                                                it.score
+                                            )
+                                        }
                                     }
                                 }
                             }

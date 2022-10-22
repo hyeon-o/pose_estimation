@@ -17,8 +17,10 @@ limitations under the License.
 package org.tensorflow.lite.examples.poseestimation.data
 
 enum class AnglePart(val position: Int, val points: Triple<BodyPart, BodyPart, BodyPart>) {
-    LEFT_KNEE(13, Triple(BodyPart.LEFT_HIP, BodyPart.LEFT_KNEE, BodyPart.LEFT_ANKLE)),
-    RIGHT_KNEE(14, Triple(BodyPart.RIGHT_HIP, BodyPart.RIGHT_KNEE, BodyPart.RIGHT_ANKLE));
+    LEFT_KNEE(0, Triple(BodyPart.LEFT_HIP, BodyPart.LEFT_KNEE, BodyPart.LEFT_ANKLE)),
+    RIGHT_KNEE(1, Triple(BodyPart.RIGHT_HIP, BodyPart.RIGHT_KNEE, BodyPart.RIGHT_ANKLE)),
+    LOWER_LEFT_HIP(2, Triple(BodyPart.RIGHT_HIP, BodyPart.LEFT_HIP, BodyPart.LEFT_KNEE)),
+    LOWER_RIGHT_HIP(3, Triple(BodyPart.LEFT_HIP, BodyPart.RIGHT_HIP, BodyPart.RIGHT_KNEE));
 
     companion object {
         private val map = values().associateBy(AnglePart::position)
