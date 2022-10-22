@@ -21,12 +21,13 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import org.tensorflow.lite.examples.poseestimation.data.BodyPart
+import org.tensorflow.lite.examples.poseestimation.data.PartType
 import org.tensorflow.lite.examples.poseestimation.data.Person
 import kotlin.math.max
 
 object VisualizationUtils {
     /** Radius of circle used to draw keypoints.  */
-    private const val CIRCLE_RADIUS = 6f
+    private const val CIRCLE_RADIUS = 10f
 
     /** Width of line used to connected two keypoints.  */
     private const val LINE_WIDTH = 2f
@@ -43,20 +44,20 @@ object VisualizationUtils {
 //        Pair(BodyPart.NOSE, BodyPart.RIGHT_EYE),
 //        Pair(BodyPart.LEFT_EYE, BodyPart.LEFT_EAR),
 //        Pair(BodyPart.RIGHT_EYE, BodyPart.RIGHT_EAR),
-        Pair(BodyPart.NOSE, BodyPart.LEFT_SHOULDER),
-        Pair(BodyPart.NOSE, BodyPart.RIGHT_SHOULDER),
-        Pair(BodyPart.LEFT_SHOULDER, BodyPart.LEFT_ELBOW),
-        Pair(BodyPart.LEFT_ELBOW, BodyPart.LEFT_WRIST),
-        Pair(BodyPart.RIGHT_SHOULDER, BodyPart.RIGHT_ELBOW),
-        Pair(BodyPart.RIGHT_ELBOW, BodyPart.RIGHT_WRIST),
-        Pair(BodyPart.LEFT_SHOULDER, BodyPart.RIGHT_SHOULDER),
-        Pair(BodyPart.LEFT_SHOULDER, BodyPart.LEFT_HIP),
-        Pair(BodyPart.RIGHT_SHOULDER, BodyPart.RIGHT_HIP),
-        Pair(BodyPart.LEFT_HIP, BodyPart.RIGHT_HIP),
-        Pair(BodyPart.LEFT_HIP, BodyPart.LEFT_KNEE),
-        Pair(BodyPart.LEFT_KNEE, BodyPart.LEFT_ANKLE),
-        Pair(BodyPart.RIGHT_HIP, BodyPart.RIGHT_KNEE),
-        Pair(BodyPart.RIGHT_KNEE, BodyPart.RIGHT_ANKLE)
+        Triple(BodyPart.NOSE, BodyPart.LEFT_SHOULDER, PartType.Left),
+        Triple(BodyPart.NOSE, BodyPart.RIGHT_SHOULDER, PartType.Right),
+        Triple(BodyPart.LEFT_SHOULDER, BodyPart.LEFT_ELBOW, PartType.Left),
+        Triple(BodyPart.LEFT_ELBOW, BodyPart.LEFT_WRIST, PartType.Left),
+        Triple(BodyPart.RIGHT_SHOULDER, BodyPart.RIGHT_ELBOW, PartType.Right),
+        Triple(BodyPart.RIGHT_ELBOW, BodyPart.RIGHT_WRIST, PartType.Right),
+        Triple(BodyPart.LEFT_SHOULDER, BodyPart.RIGHT_SHOULDER, PartType.Middle),
+        Triple(BodyPart.LEFT_SHOULDER, BodyPart.LEFT_HIP, PartType.Left),
+        Triple(BodyPart.RIGHT_SHOULDER, BodyPart.RIGHT_HIP, PartType.Right),
+        Triple(BodyPart.LEFT_HIP, BodyPart.RIGHT_HIP, PartType.Middle),
+        Triple(BodyPart.LEFT_HIP, BodyPart.LEFT_KNEE, PartType.Left),
+        Triple(BodyPart.LEFT_KNEE, BodyPart.LEFT_ANKLE, PartType.Left),
+        Triple(BodyPart.RIGHT_HIP, BodyPart.RIGHT_KNEE, PartType.Right),
+        Triple(BodyPart.RIGHT_KNEE, BodyPart.RIGHT_ANKLE, PartType.Right)
     )
 
     // Draw line and point indicate body pose
@@ -69,10 +70,23 @@ object VisualizationUtils {
             strokeWidth = CIRCLE_RADIUS
             color = Color.WHITE
             style = Paint.Style.FILL
+            // jhyeon: 투명도 설정
+            alpha = 120
         }
-        val paintLine = Paint().apply {
+
+        val paintLineLeft = Paint().apply {
+            strokeWidth = LINE_WIDTH
+            color = Color.RED
+            style = Paint.Style.STROKE
+        }
+        val paintLineMiddle = Paint().apply {
             strokeWidth = LINE_WIDTH
             color = Color.WHITE
+            style = Paint.Style.STROKE
+        }
+        val paintLineRight = Paint().apply {
+            strokeWidth = LINE_WIDTH
+            color = Color.BLUE
             style = Paint.Style.STROKE
         }
 
@@ -97,15 +111,23 @@ object VisualizationUtils {
                         personIdY - PERSON_ID_MARGIN,
                         paintText
                     )
-                    originalSizeCanvas.drawRect(it, paintLine)
+                    originalSizeCanvas.drawRect(it, paintLineMiddle)
                 }
             }
+
+            // joint 간 선
             bodyJoints.forEach {
                 val pointA = person.keyPoints[it.first.position].coordinate
                 val pointB = person.keyPoints[it.second.position].coordinate
+                val paintLine = when(it.third) {
+                    PartType.Left -> paintLineLeft
+                    PartType.Middle -> paintLineMiddle
+                    PartType.Right -> paintLineRight
+                }
                 originalSizeCanvas.drawLine(pointA.x, pointA.y, pointB.x, pointB.y, paintLine)
             }
 
+            // joint 동그라미
             person.keyPoints
                 .filter {
                     it.bodyPart !in arrayOf(BodyPart.LEFT_EYE, BodyPart.RIGHT_EYE, BodyPart.LEFT_EAR, BodyPart.RIGHT_EAR)
