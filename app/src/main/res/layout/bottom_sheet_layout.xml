@@ -36,6 +36,12 @@
         android:layout_height="match_parent" />
 
     <TextView
+        android:id="@+id/tvBlank"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/tfe_pe_tv_blank"/>
+
+    <TextView
         android:id="@+id/tvFps"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

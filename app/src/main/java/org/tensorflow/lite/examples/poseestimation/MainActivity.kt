@@ -35,6 +35,7 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.tensorflow.lite.examples.poseestimation.camera.CameraSource
+import org.tensorflow.lite.examples.poseestimation.data.AnglePart
 import org.tensorflow.lite.examples.poseestimation.data.BodyPart
 import org.tensorflow.lite.examples.poseestimation.data.Device
 import org.tensorflow.lite.examples.poseestimation.data.Person
@@ -224,19 +225,31 @@ class MainActivity : AppCompatActivity() {
                             val leftKnee = person.keyPoints.firstOrNull {
                                 it.bodyPart.position == BodyPart.LEFT_KNEE.position
                             }
-                            leftKnee?.let {
-                                tvLeftKnee.text = getString(R.string.tfe_pe_tv_joint,
-                                    it.bodyPart.name, it.bodyPart.position,
-                                    it.score, it.coordinate.x, it.coordinate.y)
+                            val leftKneeAngle = person.jointAngles?.firstOrNull {
+                                it.anglePart.position == AnglePart.LEFT_KNEE.position
+                            }
+                            if (leftKnee != null && leftKneeAngle != null) {
+                                tvLeftKnee.text = getString(
+                                    R.string.tfe_pe_tv_joint,
+                                    leftKnee.bodyPart.name, leftKnee.bodyPart.position,
+                                    leftKnee.coordinate.x, leftKnee.coordinate.y, leftKnee.score,
+                                    leftKneeAngle.angle
+                                )
                             }
                             // jhyeon: 오른쪽 무릎 (14)
                             val rightKnee = person.keyPoints.firstOrNull {
                                 it.bodyPart.position == BodyPart.RIGHT_KNEE.position
                             }
-                            rightKnee?.let {
-                                tvRightKnee.text = getString(R.string.tfe_pe_tv_joint,
-                                    it.bodyPart.name, it.bodyPart.position,
-                                    it.score, it.coordinate.x, it.coordinate.y)
+                            val rightKneeAngle = person.jointAngles?.firstOrNull {
+                                it.anglePart.position == AnglePart.RIGHT_KNEE.position
+                            }
+                            if (rightKnee != null && rightKneeAngle != null) {
+                                tvRightKnee.text = getString(
+                                    R.string.tfe_pe_tv_joint,
+                                    rightKnee.bodyPart.name, rightKnee.bodyPart.position,
+                                    rightKnee.coordinate.x, rightKnee.coordinate.y, rightKnee.score,
+                                    rightKneeAngle.angle
+                                )
                             }
                         }
                     }).apply {

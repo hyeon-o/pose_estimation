@@ -16,12 +16,12 @@ limitations under the License.
 
 package org.tensorflow.lite.examples.poseestimation.data
 
-import android.graphics.RectF
+enum class AnglePart(val position: Int, val points: Triple<BodyPart, BodyPart, BodyPart>) {
+    LEFT_KNEE(13, Triple(BodyPart.LEFT_HIP, BodyPart.LEFT_KNEE, BodyPart.LEFT_ANKLE)),
+    RIGHT_KNEE(14, Triple(BodyPart.RIGHT_HIP, BodyPart.RIGHT_KNEE, BodyPart.RIGHT_ANKLE));
 
-data class Person(
-    var id: Int = -1, // default id is -1
-    val keyPoints: List<KeyPoint>,
-    val jointAngles: List<JointAngle>? = null,
-    val boundingBox: RectF? = null, // Only MoveNet MultiPose return bounding box.
-    val score: Float
-)
+    companion object {
+        private val map = values().associateBy(AnglePart::position)
+        fun fromInt(position: Int): AnglePart = map.getValue(position)
+    }
+}

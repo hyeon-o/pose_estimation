@@ -29,9 +29,8 @@ import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.support.image.ops.ResizeOp
 import org.tensorflow.lite.support.image.ops.ResizeWithCropOrPadOp
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
-import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.min
+import java.lang.Math.pow
+import kotlin.math.*
 
 enum class ModelType {
     Lightning,
@@ -100,6 +99,7 @@ class MoveNet(private val interpreter: Interpreter, private var gpuDelegate: Gpu
 
         val numKeyPoints = outputShape[2]
         val keyPoints = mutableListOf<KeyPoint>()
+        val jointAngles = mutableListOf<JointAngle>()
 
         cropRegion?.run {
             val rect = RectF(
@@ -161,12 +161,29 @@ class MoveNet(private val interpreter: Interpreter, private var gpuDelegate: Gpu
                         points[index * 2 + 1]
                     )
             }
+
+            // jhyeon: joint angle 계산
+            // list 형태라 이짓거리를.... ,,, map으로 바꾸기 시급..
+            fun findKeyPoint(bodyPart: BodyPart): KeyPoint {
+                return keyPoints.firstOrNull {
+                    it.bodyPart.position == bodyPart.position
+                }!!
+            }
+            enumValues<AnglePart>().forEach {
+                val angle = calculateAngle(
+                    findKeyPoint(it.points.first).coordinate,
+                    findKeyPoint(it.points.second).coordinate,
+                    findKeyPoint(it.points.third).coordinate
+                )
+                jointAngles.add(JointAngle(it, angle))
+            }
+
             // new crop region
             cropRegion = determineRectF(keyPoints, bitmap.width, bitmap.height)
         }
         lastInferenceTimeNanos =
             SystemClock.elapsedRealtimeNanos() - inferenceStartTimeNanos
-        return listOf(Person(keyPoints = keyPoints, score = totalScore / numKeyPoints))
+        return listOf(Person(keyPoints = keyPoints, jointAngles = jointAngles, score = totalScore / numKeyPoints))
     }
 
     override fun lastInferenceTimeNanos(): Long = lastInferenceTimeNanos
@@ -349,5 +366,15 @@ class MoveNet(private val interpreter: Interpreter, private var gpuDelegate: Gpu
             maxBodyYRange,
             maxBodyXRange
         )
+    }
+
+    private fun calculateAngle(p1: PointF, p2: PointF, p3: PointF): Double {
+        val p12 = sqrt((p1.x - p2.x).toDouble().pow(2.0)) + sqrt((p1.y - p2.y).toDouble().pow(2.0))
+        val p23 = sqrt((p2.x - p3.x).toDouble().pow(2.0)) + sqrt((p2.y - p3.y).toDouble().pow(2.0))
+        val p31 = sqrt((p3.x - p1.x).toDouble().pow(2.0)) + sqrt((p3.y - p1.y).toDouble().pow(2.0))
+
+        val radian = acos(((p12 * p12) + (p23 * p23) - (p31 * p31)) / (2 * p12 * p23))
+        val degree = radian / Math.PI * 180
+        return degree
     }
 }

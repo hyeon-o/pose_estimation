@@ -243,7 +243,14 @@ class MoveNetMultiPose(
                         resizeY(boundingBox.bottom)
                     )
                 }
-                trackPersons.add(Person(it.id, resizeKeyPoint, resizeBoundingBox, it.score))
+                trackPersons.add(
+                    Person(
+                        id = it.id,
+                        keyPoints = resizeKeyPoint,
+                        boundingBox = resizeBoundingBox,
+                        score = it.score
+                    )
+                )
             }
             return trackPersons
         }

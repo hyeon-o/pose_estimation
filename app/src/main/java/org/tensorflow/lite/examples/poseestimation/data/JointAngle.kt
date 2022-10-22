@@ -16,12 +16,6 @@ limitations under the License.
 
 package org.tensorflow.lite.examples.poseestimation.data
 
-import android.graphics.RectF
+import android.graphics.PointF
 
-data class Person(
-    var id: Int = -1, // default id is -1
-    val keyPoints: List<KeyPoint>,
-    val jointAngles: List<JointAngle>? = null,
-    val boundingBox: RectF? = null, // Only MoveNet MultiPose return bounding box.
-    val score: Float
-)
+data class JointAngle(val anglePart: AnglePart, val angle: Double)
