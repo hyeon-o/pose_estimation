@@ -1,8 +1,9 @@
 <resources>
     <string name="tfe_pe_app_name">TFL Pose Estimation</string>
     <string name="tfe_pe_request_permission">This app needs camera permission.</string>
-    <!--jhyeon: joint 문자열-->
+    <string name="tfe_pe_tv_exercise">Count: %d Assess: %s</string>
     <string name="tfe_pe_tv_blank" />
+    <string name="tfe_pe_tv_disable">%s (%d): Not calculate yet.</string>
     <string name="tfe_pe_tv_joint_angle">%s (%d): %.2f</string>
     <string name="tfe_pe_tv_key_point">%s (%d): (%.2f, %.2f) %.2f</string>
     <string name="tfe_pe_tv_score">Score: %.2f</string>

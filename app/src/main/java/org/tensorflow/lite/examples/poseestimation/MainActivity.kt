@@ -37,12 +37,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.tensorflow.lite.examples.poseestimation.camera.CameraSource
 import org.tensorflow.lite.examples.poseestimation.data.*
-import org.tensorflow.lite.examples.poseestimation.ml.*
+import org.tensorflow.lite.examples.poseestimation.external.service.ExerciseRuleService
+import org.tensorflow.lite.examples.poseestimation.ml.ModelType
+import org.tensorflow.lite.examples.poseestimation.ml.MoveNet
+import org.tensorflow.lite.examples.poseestimation.ml.PoseClassifier
 
 class MainActivity : AppCompatActivity() {
     companion object {
         private const val FRAGMENT_DIALOG = "dialog"
     }
+
+    // jhyeon: 운동 동작룰 서비스
+    private var exerciseRuleService: ExerciseRuleService? = null
 
     /** A [SurfaceView] for camera preview.   */
     private lateinit var surfaceView: SurfaceView
@@ -59,6 +65,8 @@ class MainActivity : AppCompatActivity() {
     private var device = Device.CPU
 
     // jhyeon: joint 정보 추가
+    private lateinit var tbtnExercise: ToggleButton
+    private lateinit var tvExercise: TextView
     private lateinit var listJointAngle: LinearLayout
     private lateinit var jointAngleTvs: MutableMap<Int, TextView>
     private lateinit var listKeyPoint: LinearLayout
@@ -137,11 +145,25 @@ class MainActivity : AppCompatActivity() {
             isPoseClassifier()
         }
 
+    private var setExerciseListener =
+        CompoundButton.OnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                exerciseRuleService = ExerciseRuleService()
+                tvExercise.visibility = View.VISIBLE
+            } else {
+                exerciseRuleService = null
+                tvExercise.visibility = View.GONE
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         // keep screen on while app is running
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        tbtnExercise = findViewById(R.id.tbtnExercise)
+        tvExercise = findViewById(R.id.tvExercise)
+
         listJointAngle = findViewById(R.id.listJointAngle)
         jointAngleTvs = mutableMapOf()
         enumValues<AnglePart>().forEach {
@@ -150,7 +172,7 @@ class MainActivity : AppCompatActivity() {
                     ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT
                 )
-                text = "${it.name} (${it.position}): Not calculate yet."
+                text = getString(R.string.tfe_pe_tv_disable, it.name, it.position)
             }
             jointAngleTvs[it.position] = tv
             listJointAngle.addView(tv)
@@ -163,7 +185,7 @@ class MainActivity : AppCompatActivity() {
                     ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT
                 )
-                text = "${it.name} (${it.position}): Not calculate yet."
+                text = getString(R.string.tfe_pe_tv_disable, it.name, it.position)
             }
             keyPointTvs[it.position] = tv
             listKeyPoint.addView(tv)
@@ -183,6 +205,7 @@ class MainActivity : AppCompatActivity() {
         initSpinner()
         spnModel.setSelection(modelPos)
         swClassification.setOnCheckedChangeListener(setClassificationListener)
+        tbtnExercise.setOnCheckedChangeListener(setExerciseListener)
         if (!isCameraPermissionGranted()) {
             requestPermission()
         }
@@ -245,26 +268,26 @@ class MainActivity : AppCompatActivity() {
                         }
 
                         override fun onPersonListener(person: Person) {
-                            // joint angle information
+                            // joint angle information print
                             jointAngleTvs.forEach { (idx, tv) ->
                                 val jointAngle = person.jointAngles?.get(idx)
                                 jointAngle?.let {
                                     runOnUiThread {
                                         tv.text = getString(
                                             R.string.tfe_pe_tv_joint_angle,
-                                            jointAngle.anglePart.name,
-                                            jointAngle.anglePart.position,
-                                            jointAngle.angle
+                                            it.anglePart.name,
+                                            it.anglePart.position,
+                                            it.angle
                                         )
                                     }
                                 }
                             }
 
-                            // key point information
+                            // key point information print
                             keyPointTvs.forEach { (idx, tv) ->
                                 val keyPoint = person.keyPoints[idx]
                                 keyPoint?.let {
-                                    if (keyPoint.bodyPart.isShow) {
+                                    if (it.bodyPart.isShow) {
                                         runOnUiThread {
                                             tv.text = getString(
                                                 R.string.tfe_pe_tv_key_point,
@@ -275,6 +298,20 @@ class MainActivity : AppCompatActivity() {
                                                 it.score
                                             )
                                         }
+                                    }
+                                }
+                            }
+
+                            // exercise
+                            exerciseRuleService?.let { s ->
+                                person.jointAngles?.let { ja ->
+                                    val (count, assess) = s.exercise(
+                                        ExerciseType.SQUAT.name,
+                                        ja,
+                                        person.score
+                                    )
+                                    runOnUiThread {
+                                        tvExercise.text = getString(R.string.tfe_pe_tv_exercise, count, assess.name)
                                     }
                                 }
                             }

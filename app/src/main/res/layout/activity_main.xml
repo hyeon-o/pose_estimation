@@ -10,18 +10,41 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
+<!--    <androidx.appcompat.widget.Toolbar-->
+<!--        android:id="@+id/toolbar"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="?attr/actionBarSize"-->
+<!--        android:background="#66000000">-->
+
+<!--        <ImageView-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:contentDescription="@null"-->
+<!--            android:src="@drawable/tfl2_logo" />-->
+<!--    </androidx.appcompat.widget.Toolbar>-->
+
+    <RelativeLayout
+        android:id="@+id/linearLayout"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
         android:background="#66000000">
 
-        <ImageView
+        <TextView
+            android:id="@+id/tvExercise"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="@null"
-            android:src="@drawable/tfl2_logo" />
-    </androidx.appcompat.widget.Toolbar>
+            android:textColor="@color/white"
+            android:visibility="gone" />
 
-    <include layout="@layout/bottom_sheet_layout"/>
+        <ToggleButton
+            android:id="@+id/tbtnExercise"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:textOff="Exercise Start"
+            android:textOn="Exercise Stop" />
+    </RelativeLayout>
+
+    <include layout="@layout/bottom_sheet_layout" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
