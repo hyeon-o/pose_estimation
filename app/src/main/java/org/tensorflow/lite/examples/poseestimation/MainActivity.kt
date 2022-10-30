@@ -310,8 +310,16 @@ class MainActivity : AppCompatActivity() {
                                         ja,
                                         person.score
                                     )
+
+                                    var finalAssess = AssessType.None
+                                    if (assess.isNotEmpty()) {
+                                        finalAssess = assess.values.reduce { total, value ->
+                                            total.combine(value)
+                                        }
+                                    }
+
                                     runOnUiThread {
-                                        tvExercise.text = getString(R.string.tfe_pe_tv_exercise, count, assess.name)
+                                        tvExercise.text = getString(R.string.tfe_pe_tv_exercise, count, finalAssess.name)
                                     }
                                 }
                             }
