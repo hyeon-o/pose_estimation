@@ -20,6 +20,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import org.tensorflow.lite.examples.poseestimation.exercise.data.AssessType
 import org.tensorflow.lite.examples.poseestimation.ml.data.BodyPart
 import org.tensorflow.lite.examples.poseestimation.ml.data.PartType
 import org.tensorflow.lite.examples.poseestimation.ml.data.Person
@@ -55,15 +56,9 @@ object VisualizationUtils {
     // Draw line and point indicate body pose
     fun drawBodyKeypoints(
         input: Bitmap,
-        person: Person?
+        person: Person?,
+        assess: Map<BodyPart, AssessType>
     ): Bitmap {
-        val paintCircle = Paint().apply {
-            strokeWidth = CIRCLE_RADIUS
-            color = Color.WHITE
-            style = Paint.Style.FILL
-            // jhyeon: 투명도 설정
-            alpha = 120
-        }
 
         val paintLineLeft = Paint().apply {
             strokeWidth = LINE_WIDTH
@@ -80,6 +75,31 @@ object VisualizationUtils {
             color = Color.BLUE
             style = Paint.Style.STROKE
         }
+
+        val paintNoneCircle = Paint().apply {
+            strokeWidth = CIRCLE_RADIUS
+            color = Color.WHITE
+            style = Paint.Style.FILL
+            // 투명도 설정
+            alpha = 120
+        }
+
+        val paintBadCircle = Paint().apply {
+            strokeWidth = CIRCLE_RADIUS
+            color = Color.RED
+            style = Paint.Style.FILL
+            // 투명도 설정
+            alpha = 120
+        }
+
+        val paintGoodCircle = Paint().apply {
+            strokeWidth = CIRCLE_RADIUS
+            color = Color.GREEN
+            style = Paint.Style.FILL
+            // 투명도 설정
+            alpha = 120
+        }
+
 
         val output = input.copy(Bitmap.Config.ARGB_8888, true)
         val originalSizeCanvas = Canvas(output)
@@ -105,7 +125,11 @@ object VisualizationUtils {
                             point.coordinate.x,
                             point.coordinate.y,
                             CIRCLE_RADIUS,
-                            paintCircle
+                            when(assess[point.bodyPart]) {
+                                AssessType.Bad -> paintBadCircle
+                                AssessType.Good -> paintGoodCircle
+                                else -> paintNoneCircle
+                            }
                         )
                     }
             }

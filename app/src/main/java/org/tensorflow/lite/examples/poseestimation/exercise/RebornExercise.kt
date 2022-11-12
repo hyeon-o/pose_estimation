@@ -2,9 +2,10 @@ package org.tensorflow.lite.examples.poseestimation.exercise
 
 import org.tensorflow.lite.examples.poseestimation.exercise.data.AssessType
 import org.tensorflow.lite.examples.poseestimation.exercise.data.ExerciseType
-import org.tensorflow.lite.examples.poseestimation.ml.data.Person
 import org.tensorflow.lite.examples.poseestimation.exercise.data.UserLevelType
 import org.tensorflow.lite.examples.poseestimation.http.ExerciseApi
+import org.tensorflow.lite.examples.poseestimation.ml.data.BodyPart
+import org.tensorflow.lite.examples.poseestimation.ml.data.Person
 
 class RebornExercise(
     private val userLevelType: UserLevelType,
@@ -19,6 +20,7 @@ class RebornExercise(
     private var isExercise: Boolean = false
 
     var count: Int = 0
+    var assess: Map<BodyPart, AssessType> = emptyMap()
     var totalAssess: AssessType = AssessType.None
 
     fun process(person: Person) {
@@ -39,6 +41,9 @@ class RebornExercise(
                 count++
             }
             isExercise = resVo.isExercise
+
+            // BodyPart별 평가
+            assess = resVo.assess
 
             // 종합 평가
             if (resVo.assess.isNotEmpty()) {
