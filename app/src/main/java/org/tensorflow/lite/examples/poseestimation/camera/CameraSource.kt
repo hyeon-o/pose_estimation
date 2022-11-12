@@ -36,7 +36,6 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import org.tensorflow.lite.examples.poseestimation.VisualizationUtils
 import org.tensorflow.lite.examples.poseestimation.YuvToRgbConverter
 import org.tensorflow.lite.examples.poseestimation.data.Person
-import org.tensorflow.lite.examples.poseestimation.ml.PoseClassifier
 import org.tensorflow.lite.examples.poseestimation.ml.PoseDetector
 import java.util.*
 import kotlin.coroutines.resume
@@ -58,8 +57,6 @@ class CameraSource(
 
     private val lock = Any()
     private var detector: PoseDetector? = null
-    private var classifier: PoseClassifier? = null
-    private var isTrackerEnabled = false
     private var yuvConverter: YuvToRgbConverter = YuvToRgbConverter(surfaceView.context)
     private lateinit var imageBitmap: Bitmap
 
@@ -185,24 +182,6 @@ class CameraSource(
         }
     }
 
-    fun setClassifier(classifier: PoseClassifier?) {
-        synchronized(lock) {
-            if (this.classifier != null) {
-                this.classifier?.close()
-                this.classifier = null
-            }
-            this.classifier = classifier
-        }
-    }
-
-//    /**
-//     * Set Tracker for Movenet MuiltiPose model.
-//     */
-//    fun setTracker(trackerType: TrackerType) {
-//        isTrackerEnabled = trackerType != TrackerType.OFF
-//        (this.detector as? MoveNetMultiPose)?.setTracker(trackerType)
-//    }
-
     fun resume() {
         imageReaderThread = HandlerThread("imageReaderThread").apply { start() }
         imageReaderHandler = Handler(imageReaderThread!!.looper)
@@ -229,8 +208,6 @@ class CameraSource(
         stopImageReaderThread()
         detector?.close()
         detector = null
-        classifier?.close()
-        classifier = null
         fpsTimer?.cancel()
         fpsTimer = null
         frameProcessedInOneSecondInterval = 0
@@ -239,19 +216,11 @@ class CameraSource(
 
     // process image
     private fun processImage(bitmap: Bitmap) {
-        val persons = mutableListOf<Person>()
-        var classificationResult: List<Pair<String, Float>>? = null
+        var person: Person? = null
 
         synchronized(lock) {
             detector?.estimatePoses(bitmap)?.let {
-                persons.addAll(it)
-
-                // if the model only returns one item, allow running the Pose classifier.
-                if (persons.isNotEmpty()) {
-                    classifier?.run {
-                        classificationResult = classify(persons[0])
-                    }
-                }
+                person = it
             }
         }
         frameProcessedInOneSecondInterval++
@@ -262,18 +231,17 @@ class CameraSource(
 
         // if the model returns only one item, show that item's score.
         // jhyeon: BodyPart별 information
-        if (persons.isNotEmpty()) {
-            listener?.onDetectedInfo(persons[0].score, classificationResult)
-            listener?.onPersonListener(persons[0])
+        person?.let {
+            listener?.onPersonListener(it)
         }
-        visualize(persons, bitmap)
+        visualize(person, bitmap)
     }
 
-    private fun visualize(persons: List<Person>, bitmap: Bitmap) {
+    private fun visualize(person: Person?, bitmap: Bitmap) {
 
         val outputBitmap = VisualizationUtils.drawBodyKeypoints(
             bitmap,
-            persons.filter { it.score > MIN_CONFIDENCE }, isTrackerEnabled
+            if ((person != null) && (person.score > MIN_CONFIDENCE)) person else null
         )
 
         val holder = surfaceView.holder
@@ -321,7 +289,6 @@ class CameraSource(
 
     interface CameraSourceListener {
         fun onFPSListener(fps: Int)
-        fun onDetectedInfo(personScore: Float?, poseLabels: List<Pair<String, Float>>?)
         fun onPersonListener(person: Person)
     }
 }

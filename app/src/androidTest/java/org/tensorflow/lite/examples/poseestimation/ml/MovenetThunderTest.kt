@@ -56,7 +56,7 @@ class MovenetThunderTest {
         poseDetector.estimatePoses(input)
         poseDetector.estimatePoses(input)
         poseDetector.estimatePoses(input)
-        val person = poseDetector.estimatePoses(input)[0]
+        val person = poseDetector.estimatePoses(input)
         EvaluationUtils.assertPoseDetectionResult(
             person,
             expectedDetectionResult[0],
@@ -73,7 +73,7 @@ class MovenetThunderTest {
         poseDetector.estimatePoses(input)
         poseDetector.estimatePoses(input)
         poseDetector.estimatePoses(input)
-        val person = poseDetector.estimatePoses(input)[0]
+        val person = poseDetector.estimatePoses(input)
         EvaluationUtils.assertPoseDetectionResult(
             person,
             expectedDetectionResult[1],
