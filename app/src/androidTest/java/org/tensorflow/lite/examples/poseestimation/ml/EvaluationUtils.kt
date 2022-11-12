@@ -23,8 +23,8 @@ import android.graphics.PointF
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import org.tensorflow.lite.examples.poseestimation.data.BodyPart
-import org.tensorflow.lite.examples.poseestimation.data.Person
+import org.tensorflow.lite.examples.poseestimation.ml.data.BodyPart
+import org.tensorflow.lite.examples.poseestimation.ml.data.Person
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import kotlin.math.pow

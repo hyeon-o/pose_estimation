@@ -14,16 +14,13 @@ limitations under the License.
 ==============================================================================
 */
 
-package org.tensorflow.lite.examples.poseestimation.data
+package org.tensorflow.lite.examples.poseestimation.ml.model
 
-import android.graphics.RectF
+import android.graphics.Bitmap
+import org.tensorflow.lite.examples.poseestimation.ml.data.Person
 
-data class Person(
-    var id: Int = -1, // default id is -1
-//    val keyPoints: List<KeyPoint>,
-//    val jointAngles: List<JointAngle>? = null,
-    val keyPoints: Map<Int, KeyPoint>,
-    val jointAngles: Map<Int, JointAngle>? = null,
-    val boundingBox: RectF? = null, // Only MoveNet MultiPose return bounding box.
-    val score: Float
-)
+interface PoseDetector : AutoCloseable {
+
+    fun estimatePoses(bitmap: Bitmap): Person
+    fun lastInferenceTimeNanos(): Long
+}

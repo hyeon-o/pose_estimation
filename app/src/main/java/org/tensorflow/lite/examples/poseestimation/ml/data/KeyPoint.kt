@@ -14,10 +14,9 @@ limitations under the License.
 ==============================================================================
 */
 
-package org.tensorflow.lite.examples.poseestimation.data
+package org.tensorflow.lite.examples.poseestimation.ml.data
 
-enum class Device {
-    CPU,
-    NNAPI,
-    GPU
-}
+import android.graphics.PointF
+import org.tensorflow.lite.examples.poseestimation.ml.data.BodyPart
+
+data class KeyPoint(val bodyPart: BodyPart, var coordinate: PointF, val score: Float)

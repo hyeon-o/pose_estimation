@@ -23,9 +23,9 @@
 //import org.junit.Before
 //import org.junit.Test
 //import org.junit.runner.RunWith
-//import org.tensorflow.lite.examples.poseestimation.data.BodyPart
-//import org.tensorflow.lite.examples.poseestimation.data.KeyPoint
-//import org.tensorflow.lite.examples.poseestimation.data.Person
+//import org.tensorflow.lite.examples.poseestimation.ml.data.BodyPart
+//import org.tensorflow.lite.examples.poseestimation.ml.data.KeyPoint
+//import org.tensorflow.lite.examples.poseestimation.ml.data.Person
 //import kotlin.math.exp
 //import kotlin.math.pow
 //

@@ -22,7 +22,7 @@
 //import org.junit.Before
 //import org.junit.Test
 //import org.junit.runner.RunWith
-//import org.tensorflow.lite.examples.poseestimation.data.Person
+//import org.tensorflow.lite.examples.poseestimation.ml.data.Person
 //
 //@RunWith(AndroidJUnit4::class)
 //class BoundingBoxTrackerTest {

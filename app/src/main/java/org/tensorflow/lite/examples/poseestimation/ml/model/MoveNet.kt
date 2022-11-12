@@ -14,14 +14,14 @@ limitations under the License.
 ==============================================================================
 */
 
-package org.tensorflow.lite.examples.poseestimation.ml
+package org.tensorflow.lite.examples.poseestimation.ml.model
 
 import android.content.Context
 import android.graphics.*
 import android.os.SystemClock
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.Interpreter
-import org.tensorflow.lite.examples.poseestimation.data.*
+import org.tensorflow.lite.examples.poseestimation.ml.data.*
 import org.tensorflow.lite.gpu.GpuDelegate
 import org.tensorflow.lite.support.common.FileUtil
 import org.tensorflow.lite.support.image.ImageProcessor
@@ -36,8 +36,10 @@ enum class ModelType {
     Thunder
 }
 
-class MoveNet(private val interpreter: Interpreter, private var gpuDelegate: GpuDelegate?) :
-    PoseDetector {
+class MoveNet(
+    private val interpreter: Interpreter,
+    private var gpuDelegate: GpuDelegate?,
+) : PoseDetector {
 
     companion object {
         private const val MIN_CROP_KEYPOINT_SCORE = .2f
@@ -98,6 +100,7 @@ class MoveNet(private val interpreter: Interpreter, private var gpuDelegate: Gpu
 
         val numKeyPoints = outputShape[2]
         val keyPoints = mutableMapOf<Int, KeyPoint>()
+
         val jointAngles = mutableMapOf<Int, JointAngle>()
 
         cropRegion?.run {
@@ -159,7 +162,7 @@ class MoveNet(private val interpreter: Interpreter, private var gpuDelegate: Gpu
                     )
             }
 
-            // jhyeon: joint angle 계산
+            // joint angle 계산
             enumValues<AnglePart>().forEach {
                 val angle = calculateAngle(
                     keyPoints[it.points.first.position]!!.coordinate,
@@ -174,6 +177,7 @@ class MoveNet(private val interpreter: Interpreter, private var gpuDelegate: Gpu
         }
         lastInferenceTimeNanos =
             SystemClock.elapsedRealtimeNanos() - inferenceStartTimeNanos
+
         return Person(keyPoints = keyPoints, jointAngles = jointAngles, score = totalScore / numKeyPoints)
     }
 

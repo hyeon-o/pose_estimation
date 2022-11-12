@@ -23,8 +23,11 @@ import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.tensorflow.lite.examples.poseestimation.data.BodyPart
-import org.tensorflow.lite.examples.poseestimation.data.Device
+import org.tensorflow.lite.examples.poseestimation.ml.data.BodyPart
+import org.tensorflow.lite.examples.poseestimation.ml.data.Device
+import org.tensorflow.lite.examples.poseestimation.ml.model.ModelType
+import org.tensorflow.lite.examples.poseestimation.ml.model.MoveNet
+import org.tensorflow.lite.examples.poseestimation.ml.model.PoseDetector
 
 @RunWith(AndroidJUnit4::class)
 class MovenetLightningTest {

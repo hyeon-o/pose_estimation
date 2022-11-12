@@ -29,25 +29,27 @@ import android.view.WindowManager
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.tensorflow.lite.examples.poseestimation.camera.CameraSource
-import org.tensorflow.lite.examples.poseestimation.data.*
-import org.tensorflow.lite.examples.poseestimation.external.service.ExerciseRuleService
-import org.tensorflow.lite.examples.poseestimation.ml.ModelType
-import org.tensorflow.lite.examples.poseestimation.ml.MoveNet
+import org.tensorflow.lite.examples.poseestimation.exercise.RebornExercise
+import org.tensorflow.lite.examples.poseestimation.exercise.data.AssessType
+import org.tensorflow.lite.examples.poseestimation.exercise.data.ExerciseType
+import org.tensorflow.lite.examples.poseestimation.exercise.data.UserLevelType
+import org.tensorflow.lite.examples.poseestimation.ml.data.AnglePart
+import org.tensorflow.lite.examples.poseestimation.ml.data.BodyPart
+import org.tensorflow.lite.examples.poseestimation.ml.data.Device
+import org.tensorflow.lite.examples.poseestimation.ml.data.Person
+import org.tensorflow.lite.examples.poseestimation.ml.model.ModelType
+import org.tensorflow.lite.examples.poseestimation.ml.model.MoveNet
 
 class MainActivity : AppCompatActivity() {
     companion object {
         private const val FRAGMENT_DIALOG = "dialog"
     }
-
-    // jhyeon: 운동 동작룰 서비스
-    private var exerciseRuleService: ExerciseRuleService? = null
 
     /** A [SurfaceView] for camera preview.   */
     private lateinit var surfaceView: SurfaceView
@@ -76,6 +78,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var spnDevice: Spinner
     private lateinit var spnModel: Spinner
     private var cameraSource: CameraSource? = null
+    private var rebornExercise: RebornExercise? = null
     private val requestPermissionLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestPermission()
@@ -122,11 +125,14 @@ class MainActivity : AppCompatActivity() {
     private var setExerciseListener =
         CompoundButton.OnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                exerciseRuleService = ExerciseRuleService()
+                rebornExercise = RebornExercise(UserLevelType.A, ExerciseType.SQUAT)
                 tvExercise.visibility = View.VISIBLE
             } else {
-                exerciseRuleService = null
+                rebornExercise = null
                 tvExercise.visibility = View.GONE
+            }
+            cameraSource?.let {
+                it.setRebornExercise(rebornExercise)
             }
         }
 
@@ -213,7 +219,8 @@ class MainActivity : AppCompatActivity() {
                         }
 
                         override fun onPersonListener(person: Person) {
-                            // joint angle information print
+
+                            // joint angle 정보 출력
                             jointAngleTvs.forEach { (idx, tv) ->
                                 val jointAngle = person.jointAngles?.get(idx)
                                 jointAngle?.let {
@@ -228,7 +235,7 @@ class MainActivity : AppCompatActivity() {
                                 }
                             }
 
-                            // key point information print
+                            // key point 정보 출력
                             keyPointTvs.forEach { (idx, tv) ->
                                 val keyPoint = person.keyPoints[idx]
                                 keyPoint?.let {
@@ -247,26 +254,13 @@ class MainActivity : AppCompatActivity() {
                                 }
                             }
 
-                            // exercise
-                            exerciseRuleService?.let { s ->
-                                person.jointAngles?.let { ja ->
-                                    val (count, assess) = s.exercise(
-                                        ExerciseType.SQUAT.name,
-                                        ja,
-                                        person.score
-                                    )
-
-                                    var finalAssess = AssessType.None
-                                    if (assess.isNotEmpty()) {
-                                        finalAssess = assess.values.reduce { total, value ->
-                                            total.combine(value)
-                                        }
-                                    }
-
-                                    runOnUiThread {
-                                        tvExercise.text = getString(R.string.tfe_pe_tv_exercise, count, finalAssess.name)
-                                    }
-                                }
+                            // 운동 평가 정보 출력
+                            runOnUiThread {
+                                tvExercise.text = getString(
+                                    R.string.tfe_pe_tv_exercise,
+                                    rebornExercise?.count ?: 0,
+                                    rebornExercise?.totalAssess?.name ?: AssessType.None.name
+                                )
                             }
                         }
                     }).apply {

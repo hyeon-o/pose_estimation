@@ -35,8 +35,9 @@ import android.view.SurfaceView
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.tensorflow.lite.examples.poseestimation.VisualizationUtils
 import org.tensorflow.lite.examples.poseestimation.YuvToRgbConverter
-import org.tensorflow.lite.examples.poseestimation.data.Person
-import org.tensorflow.lite.examples.poseestimation.ml.PoseDetector
+import org.tensorflow.lite.examples.poseestimation.ml.data.Person
+import org.tensorflow.lite.examples.poseestimation.exercise.RebornExercise
+import org.tensorflow.lite.examples.poseestimation.ml.model.PoseDetector
 import java.util.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -57,6 +58,7 @@ class CameraSource(
 
     private val lock = Any()
     private var detector: PoseDetector? = null
+    private var rebornExercise: RebornExercise? = null
     private var yuvConverter: YuvToRgbConverter = YuvToRgbConverter(surfaceView.context)
     private lateinit var imageBitmap: Bitmap
 
@@ -182,6 +184,10 @@ class CameraSource(
         }
     }
 
+    fun setRebornExercise(rebornExercise: RebornExercise?) {
+        this.rebornExercise = rebornExercise
+    }
+
     fun resume() {
         imageReaderThread = HandlerThread("imageReaderThread").apply { start() }
         imageReaderHandler = Handler(imageReaderThread!!.looper)
@@ -219,21 +225,24 @@ class CameraSource(
         var person: Person? = null
 
         synchronized(lock) {
+            // 포즈 예측
             detector?.estimatePoses(bitmap)?.let {
                 person = it
             }
+            // 운동 로직
+            rebornExercise?.process(person!!)
         }
+
         frameProcessedInOneSecondInterval++
         if (frameProcessedInOneSecondInterval == 1) {
             // send fps to view
             listener?.onFPSListener(framesPerSecond)
         }
 
-        // if the model returns only one item, show that item's score.
-        // jhyeon: BodyPart별 information
         person?.let {
             listener?.onPersonListener(it)
         }
+
         visualize(person, bitmap)
     }
 

@@ -24,7 +24,7 @@
 //import org.junit.Before
 //import org.junit.Test
 //import org.junit.runner.RunWith
-//import org.tensorflow.lite.examples.poseestimation.data.Device
+//import org.tensorflow.lite.examples.poseestimation.ml.data.Device
 //
 //@RunWith(AndroidJUnit4::class)
 //class PoseClassifierTest {

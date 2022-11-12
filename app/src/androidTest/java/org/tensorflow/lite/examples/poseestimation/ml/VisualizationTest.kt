@@ -25,7 +25,9 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.tensorflow.lite.examples.poseestimation.VisualizationUtils
-import org.tensorflow.lite.examples.poseestimation.data.Device
+import org.tensorflow.lite.examples.poseestimation.ml.data.Device
+import org.tensorflow.lite.examples.poseestimation.ml.model.ModelType
+import org.tensorflow.lite.examples.poseestimation.ml.model.MoveNet
 
 /**
  * This test is used to visually verify detection results by the models.

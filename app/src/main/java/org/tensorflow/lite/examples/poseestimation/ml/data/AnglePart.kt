@@ -14,29 +14,16 @@ limitations under the License.
 ==============================================================================
 */
 
-package org.tensorflow.lite.examples.poseestimation.data
+package org.tensorflow.lite.examples.poseestimation.ml.data
 
-enum class BodyPart(val position: Int, val isShow: Boolean) {
-    NOSE(0, true),
-    LEFT_EYE(1, false),
-    RIGHT_EYE(2, false),
-    LEFT_EAR(3, false),
-    RIGHT_EAR(4, false),
-    LEFT_SHOULDER(5, true),
-    RIGHT_SHOULDER(6, true),
-    LEFT_ELBOW(7, true),
-    RIGHT_ELBOW(8, true),
-    LEFT_WRIST(9, true),
-    RIGHT_WRIST(10, true),
-    LEFT_HIP(11, true),
-    RIGHT_HIP(12, true),
-    LEFT_KNEE(13, true),
-    RIGHT_KNEE(14, true),
-    LEFT_ANKLE(15, true),
-    RIGHT_ANKLE(16, true);
+enum class AnglePart(val position: Int, val points: Triple<BodyPart, BodyPart, BodyPart>) {
+    LEFT_KNEE(0, Triple(BodyPart.LEFT_HIP, BodyPart.LEFT_KNEE, BodyPart.LEFT_ANKLE)),
+    RIGHT_KNEE(1, Triple(BodyPart.RIGHT_HIP, BodyPart.RIGHT_KNEE, BodyPart.RIGHT_ANKLE)),
+    LOWER_LEFT_HIP(2, Triple(BodyPart.RIGHT_HIP, BodyPart.LEFT_HIP, BodyPart.LEFT_KNEE)),
+    LOWER_RIGHT_HIP(3, Triple(BodyPart.LEFT_HIP, BodyPart.RIGHT_HIP, BodyPart.RIGHT_KNEE));
 
     companion object {
-        private val map = values().associateBy(BodyPart::position)
-        fun fromInt(position: Int): BodyPart = map.getValue(position)
+        private val map = values().associateBy(AnglePart::position)
+        fun fromInt(position: Int): AnglePart = map.getValue(position)
     }
 }

@@ -14,6 +14,6 @@ limitations under the License.
 ==============================================================================
 */
 
-package org.tensorflow.lite.examples.poseestimation.data
+package org.tensorflow.lite.examples.poseestimation.ml.data
 
 data class JointAngle(val anglePart: AnglePart, val angle: Double)

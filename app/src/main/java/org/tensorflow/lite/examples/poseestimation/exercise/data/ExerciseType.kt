@@ -1,4 +1,4 @@
-package org.tensorflow.lite.examples.poseestimation.data
+package org.tensorflow.lite.examples.poseestimation.exercise.data
 
 enum class ExerciseType(val code: String) {
     SQUAT("H00");

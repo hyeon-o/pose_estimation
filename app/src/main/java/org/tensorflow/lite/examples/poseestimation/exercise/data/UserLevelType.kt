@@ -1,4 +1,4 @@
-package org.tensorflow.lite.examples.poseestimation.data
+package org.tensorflow.lite.examples.poseestimation.exercise.data
 
 enum class UserLevelType(val angleBtr: Int, val countBtr: Int) {
     A(25, 30),

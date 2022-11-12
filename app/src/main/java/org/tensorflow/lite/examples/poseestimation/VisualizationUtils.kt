@@ -20,10 +20,9 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import org.tensorflow.lite.examples.poseestimation.data.BodyPart
-import org.tensorflow.lite.examples.poseestimation.data.PartType
-import org.tensorflow.lite.examples.poseestimation.data.Person
-import kotlin.math.max
+import org.tensorflow.lite.examples.poseestimation.ml.data.BodyPart
+import org.tensorflow.lite.examples.poseestimation.ml.data.PartType
+import org.tensorflow.lite.examples.poseestimation.ml.data.Person
 
 object VisualizationUtils {
     /** Radius of circle used to draw keypoints.  */
