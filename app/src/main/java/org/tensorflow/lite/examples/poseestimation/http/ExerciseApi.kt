@@ -5,11 +5,15 @@ import org.tensorflow.lite.examples.poseestimation.exercise.ClientResVo
 import org.tensorflow.lite.examples.poseestimation.exercise.data.AssessType
 import org.tensorflow.lite.examples.poseestimation.ml.data.BodyPart
 
-class ExerciseApi: TestData {
+object ExerciseApi: TestData {
 
-    fun call(reqVo: ClientReqVo): ClientResVo {
+    fun getUser(userNo: Long): User {
+        return user[userNo]!!
+    }
 
-        val rules = exercise[reqVo.exerciseType]!!
+    fun exercise(reqVo: ClientReqVo): ClientResVo {
+
+        val rules = exercise[reqVo.exerciseNo]!!.rules
 
         var isExercise = false
         val assess = mutableMapOf<BodyPart, AssessType>()

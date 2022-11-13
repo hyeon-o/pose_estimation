@@ -37,8 +37,8 @@ import kotlinx.coroutines.launch
 import org.tensorflow.lite.examples.poseestimation.camera.CameraSource
 import org.tensorflow.lite.examples.poseestimation.exercise.RebornExercise
 import org.tensorflow.lite.examples.poseestimation.exercise.data.AssessType
-import org.tensorflow.lite.examples.poseestimation.exercise.data.ExerciseType
-import org.tensorflow.lite.examples.poseestimation.exercise.data.UserLevelType
+import org.tensorflow.lite.examples.poseestimation.http.ExerciseApi
+import org.tensorflow.lite.examples.poseestimation.http.User
 import org.tensorflow.lite.examples.poseestimation.ml.data.AnglePart
 import org.tensorflow.lite.examples.poseestimation.ml.data.BodyPart
 import org.tensorflow.lite.examples.poseestimation.ml.data.Device
@@ -77,8 +77,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvFPS: TextView
     private lateinit var spnDevice: Spinner
     private lateinit var spnModel: Spinner
+
     private var cameraSource: CameraSource? = null
     private var rebornExercise: RebornExercise? = null
+    private lateinit var user: User
+
     private val requestPermissionLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestPermission()
@@ -125,7 +128,7 @@ class MainActivity : AppCompatActivity() {
     private var setExerciseListener =
         CompoundButton.OnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                rebornExercise = RebornExercise(UserLevelType.A, ExerciseType.SQUAT)
+                rebornExercise = RebornExercise(user, 0L)
                 tvExercise.visibility = View.VISIBLE
             } else {
                 rebornExercise = null
@@ -181,6 +184,8 @@ class MainActivity : AppCompatActivity() {
         if (!isCameraPermissionGranted()) {
             requestPermission()
         }
+
+        user = ExerciseApi.getUser(0)
     }
 
     override fun onStart() {
