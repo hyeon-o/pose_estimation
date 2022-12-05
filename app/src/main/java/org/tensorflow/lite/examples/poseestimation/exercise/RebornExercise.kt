@@ -1,6 +1,7 @@
 package org.tensorflow.lite.examples.poseestimation.exercise
 
 import org.tensorflow.lite.examples.poseestimation.exercise.data.AssessType
+import org.tensorflow.lite.examples.poseestimation.http.Exercise
 import org.tensorflow.lite.examples.poseestimation.http.ExerciseApi
 import org.tensorflow.lite.examples.poseestimation.http.User
 import org.tensorflow.lite.examples.poseestimation.ml.data.BodyPart
@@ -8,7 +9,7 @@ import org.tensorflow.lite.examples.poseestimation.ml.data.Person
 
 class RebornExercise(
     private val user: User,
-    private val exerciseNo: Long,
+    private val exercise: Exercise,
 ) {
 
     companion object {
@@ -17,6 +18,7 @@ class RebornExercise(
 
     private var isExercise: Boolean = false
 
+    var set: Int = 0
     var count: Int = 0
     var assess: Map<BodyPart, AssessType> = emptyMap()
     var totalAssess: AssessType = AssessType.None
@@ -28,7 +30,7 @@ class RebornExercise(
             val resVo: ClientResVo = ExerciseApi.exercise(
                 ClientReqVo(
                     userLevelType = user.userLevelType,
-                    exerciseNo = exerciseNo,
+                    exerciseNo = exercise.exerciseNo,
                     jointAngles = person.jointAngles ?: emptyMap(),
                     isExercise = isExercise,
                 )
@@ -40,8 +42,6 @@ class RebornExercise(
             }
             isExercise = resVo.isExercise
 
-            // 세트 카운트
-
             // BodyPart별 평가
             assess = resVo.assess
 
@@ -50,6 +50,12 @@ class RebornExercise(
                 totalAssess = resVo.assess.values.reduce { total, value ->
                     total.combine(value)
                 }
+            }
+
+            // 세트 카운트
+            if (count == exercise.count) {
+                set++
+                count = 0
             }
         }
     }

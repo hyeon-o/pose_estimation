@@ -7,17 +7,29 @@ import org.tensorflow.lite.examples.poseestimation.ml.data.BodyPart
 
 object ExerciseApi: TestData {
 
+    /**
+     * 사용자 조회
+     */
     fun getUser(userNo: Long): User {
         return user[userNo]!!
     }
 
+    /**
+     * 운동 조회
+     */
+    fun getExercise(exerciseNo: Long): Exercise {
+        return exercise[exerciseNo]!!
+    }
+
+    /**
+     * 운동 로직
+     */
     fun exercise(reqVo: ClientReqVo): ClientResVo {
 
         val rules = exercise[reqVo.exerciseNo]!!.rules
 
         var isExercise = false
         val assess = mutableMapOf<BodyPart, AssessType>()
-
 
         // 운동 동작 범위 체크
         val countValue = rules.map {

@@ -22,6 +22,7 @@ import android.app.Dialog
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Process
+import android.os.SystemClock
 import android.view.SurfaceView
 import android.view.View
 import android.view.ViewGroup
@@ -37,6 +38,7 @@ import kotlinx.coroutines.launch
 import org.tensorflow.lite.examples.poseestimation.camera.CameraSource
 import org.tensorflow.lite.examples.poseestimation.exercise.RebornExercise
 import org.tensorflow.lite.examples.poseestimation.exercise.data.AssessType
+import org.tensorflow.lite.examples.poseestimation.http.Exercise
 import org.tensorflow.lite.examples.poseestimation.http.ExerciseApi
 import org.tensorflow.lite.examples.poseestimation.http.User
 import org.tensorflow.lite.examples.poseestimation.ml.data.AnglePart
@@ -68,6 +70,7 @@ class MainActivity : AppCompatActivity() {
     // jhyeon: joint 정보 추가
     private lateinit var tbtnExercise: ToggleButton
     private lateinit var tvExercise: TextView
+    private lateinit var chrExercise: Chronometer
     private lateinit var listJointAngle: LinearLayout
     private lateinit var jointAngleTvs: MutableMap<Int, TextView>
     private lateinit var listKeyPoint: LinearLayout
@@ -78,9 +81,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var spnDevice: Spinner
     private lateinit var spnModel: Spinner
 
-    private var cameraSource: CameraSource? = null
-    private var rebornExercise: RebornExercise? = null
     private lateinit var user: User
+    private var cameraSource: CameraSource? = null
+    private var exercise: Exercise? = null
+    private var rebornExercise: RebornExercise? = null
 
     private val requestPermissionLauncher =
         registerForActivityResult(
@@ -128,15 +132,28 @@ class MainActivity : AppCompatActivity() {
     private var setExerciseListener =
         CompoundButton.OnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                rebornExercise = RebornExercise(user, 0L)
+                // 운동 데이터 조회
+                exercise = ExerciseApi.getExercise(0L)
+
+                // 운동 서비스 생성
+                rebornExercise = RebornExercise(user, exercise!!)
+
+                // 운동 시작
+                chrExercise.base = SystemClock.elapsedRealtime()
+                chrExercise.start()
+
+                // 컴포넌트 노출 활성화
                 tvExercise.visibility = View.VISIBLE
+                chrExercise.visibility = View.VISIBLE
             } else {
-                rebornExercise = null
+//                rebornExercise = null
+                chrExercise.stop()
+
+                // 컴포넌트 노출 비활성화
                 tvExercise.visibility = View.GONE
+                chrExercise.visibility = View.GONE
             }
-            cameraSource?.let {
-                it.setRebornExercise(rebornExercise)
-            }
+            cameraSource?.setRebornExercise(rebornExercise)
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -146,6 +163,7 @@ class MainActivity : AppCompatActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         tbtnExercise = findViewById(R.id.tbtnExercise)
         tvExercise = findViewById(R.id.tvExercise)
+        chrExercise = findViewById(R.id.chrExercise)
 
         listJointAngle = findViewById(R.id.listJointAngle)
         jointAngleTvs = mutableMapOf()
@@ -240,7 +258,7 @@ class MainActivity : AppCompatActivity() {
                                 }
                             }
 
-                            // key point 정보 출력
+                            // key point 정보 출력e
                             keyPointTvs.forEach { (idx, tv) ->
                                 val keyPoint = person.keyPoints[idx]
                                 keyPoint?.let {
@@ -260,12 +278,15 @@ class MainActivity : AppCompatActivity() {
                             }
 
                             // 운동 평가 정보 출력
-                            runOnUiThread {
-                                tvExercise.text = getString(
-                                    R.string.tfe_pe_tv_exercise,
-                                    rebornExercise?.count ?: 0,
-                                    rebornExercise?.totalAssess?.name ?: AssessType.None.name
-                                )
+                            if (exercise != null && rebornExercise != null) {
+                                runOnUiThread {
+                                    tvExercise.text = getString(
+                                        R.string.tfe_pe_tv_exercise,
+                                        rebornExercise!!.set, exercise!!.set,
+                                        rebornExercise!!.count, exercise!!.count,
+                                        rebornExercise!!.totalAssess.name
+                                    )
+                                }
                             }
                         }
                     }).apply {

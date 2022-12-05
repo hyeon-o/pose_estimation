@@ -1,7 +1,7 @@
 <resources>
     <string name="tfe_pe_app_name">TFL Pose Estimation</string>
     <string name="tfe_pe_request_permission">This app needs camera permission.</string>
-    <string name="tfe_pe_tv_exercise">Count: %d Assess: %s</string>
+    <string name="tfe_pe_tv_exercise">Set: %d/%d Count: %d/%d Assess: %s</string>
     <string name="tfe_pe_tv_blank" />
     <string name="tfe_pe_tv_disable">%s (%d): Not calculate yet.</string>
     <string name="tfe_pe_tv_joint_angle">%s (%d): %.2f</string>
