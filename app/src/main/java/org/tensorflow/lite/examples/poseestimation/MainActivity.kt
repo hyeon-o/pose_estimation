@@ -20,7 +20,9 @@ import android.Manifest
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.os.Process
 import android.os.SystemClock
 import android.view.SurfaceView
@@ -37,7 +39,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.tensorflow.lite.examples.poseestimation.camera.CameraSource
 import org.tensorflow.lite.examples.poseestimation.exercise.RebornExercise
-import org.tensorflow.lite.examples.poseestimation.exercise.data.AssessType
 import org.tensorflow.lite.examples.poseestimation.http.Exercise
 import org.tensorflow.lite.examples.poseestimation.http.ExerciseApi
 import org.tensorflow.lite.examples.poseestimation.http.User
@@ -70,18 +71,19 @@ class MainActivity : AppCompatActivity() {
     // jhyeon: joint 정보 추가
     private lateinit var tbtnExercise: ToggleButton
     private lateinit var tvExercise: TextView
-    private lateinit var chrExercise: Chronometer
+    private lateinit var chrProgram: Chronometer
+    private lateinit var tvCircleTime: TextView
     private lateinit var listJointAngle: LinearLayout
     private lateinit var jointAngleTvs: MutableMap<Int, TextView>
     private lateinit var listKeyPoint: LinearLayout
     private lateinit var keyPointTvs: MutableMap<Int, TextView>
-
     private lateinit var tvScore: TextView
+
     private lateinit var tvFPS: TextView
     private lateinit var spnDevice: Spinner
     private lateinit var spnModel: Spinner
-
     private lateinit var user: User
+
     private var cameraSource: CameraSource? = null
     private var exercise: Exercise? = null
     private var rebornExercise: RebornExercise? = null
@@ -130,28 +132,72 @@ class MainActivity : AppCompatActivity() {
     }
 
     private var setExerciseListener =
-        CompoundButton.OnCheckedChangeListener { _, isChecked ->
+        CompoundButton.OnCheckedChangeListener { btn, isChecked ->
             if (isChecked) {
+                showToast("Exercise Start")
+
                 // 운동 데이터 조회
                 exercise = ExerciseApi.getExercise(0L)
 
                 // 운동 서비스 생성
-                rebornExercise = RebornExercise(user, exercise!!)
+                rebornExercise = RebornExercise(user, exercise!!, object : RebornExercise.RebornExerciseListener {
+                    override fun onExercise() {
+                        RebornExercise.timer = object : CountDownTimer(exercise!!.circleTime * 1000L, 1000) {
+                            override fun onTick(p0: Long) {
+                                val sec = p0.div(1000).toInt()
+                                tvCircleTime.setTextColor(Color.WHITE)
+                                tvCircleTime.text = sec.toString()
+                            }
 
-                // 운동 시작
-                chrExercise.base = SystemClock.elapsedRealtime()
-                chrExercise.start()
+                            override fun onFinish() {
+                                rebornExercise!!.finishCircle()
+                            }
+                        }
+                        RebornExercise.timer?.start()
+                    }
+
+                    override fun onRest() {
+                        RebornExercise.timer = object : CountDownTimer(exercise!!.restTime * 1000L, 1000) {
+                            override fun onTick(p0: Long) {
+                                val sec = p0.div(1000).toInt()
+                                tvCircleTime.setTextColor(Color.RED)
+                                tvCircleTime.text = sec.toString()
+                            }
+
+                            override fun onFinish() {
+                                rebornExercise!!.startCircle()
+                            }
+                        }
+                        RebornExercise.timer?.start()
+                    }
+
+                    override fun onFinish() {
+                        RebornExercise.timer = null
+                        runOnUiThread {
+                            btn.toggle()
+                        }
+                    }
+                })
+
+                // 프로그램 시작
+                chrProgram.base = SystemClock.elapsedRealtime()
+                chrProgram.start()
 
                 // 컴포넌트 노출 활성화
                 tvExercise.visibility = View.VISIBLE
-                chrExercise.visibility = View.VISIBLE
+                chrProgram.visibility = View.VISIBLE
+                tvCircleTime.visibility = View.VISIBLE
+
             } else {
-//                rebornExercise = null
-                chrExercise.stop()
+                showToast("Exercise Finish")
+
+                rebornExercise = null
+                chrProgram.stop()
 
                 // 컴포넌트 노출 비활성화
                 tvExercise.visibility = View.GONE
-                chrExercise.visibility = View.GONE
+                chrProgram.visibility = View.GONE
+                tvCircleTime.visibility = View.GONE
             }
             cameraSource?.setRebornExercise(rebornExercise)
         }
@@ -163,7 +209,8 @@ class MainActivity : AppCompatActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         tbtnExercise = findViewById(R.id.tbtnExercise)
         tvExercise = findViewById(R.id.tvExercise)
-        chrExercise = findViewById(R.id.chrExercise)
+        chrProgram = findViewById(R.id.chrProgram)
+        tvCircleTime = findViewById(R.id.tvCircleTime)
 
         listJointAngle = findViewById(R.id.listJointAngle)
         jointAngleTvs = mutableMapOf()
@@ -258,7 +305,7 @@ class MainActivity : AppCompatActivity() {
                                 }
                             }
 
-                            // key point 정보 출력e
+                            // key point 정보 출력
                             keyPointTvs.forEach { (idx, tv) ->
                                 val keyPoint = person.keyPoints[idx]
                                 keyPoint?.let {
@@ -278,15 +325,13 @@ class MainActivity : AppCompatActivity() {
                             }
 
                             // 운동 평가 정보 출력
-                            if (exercise != null && rebornExercise != null) {
-                                runOnUiThread {
-                                    tvExercise.text = getString(
-                                        R.string.tfe_pe_tv_exercise,
-                                        rebornExercise!!.set, exercise!!.set,
-                                        rebornExercise!!.count, exercise!!.count,
-                                        rebornExercise!!.totalAssess.name
-                                    )
-                                }
+                            runOnUiThread {
+                                tvExercise.text = getString(
+                                    R.string.tfe_pe_tv_exercise,
+                                    rebornExercise?.circleCount, exercise?.circle,
+                                    rebornExercise?.repCount, exercise?.rep,
+                                    rebornExercise?.totalAssess?.name
+                                )
                             }
                         }
                     }).apply {

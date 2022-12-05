@@ -7,5 +7,5 @@ data class ClientReqVo (
     val userLevelType: UserLevelType,
     val exerciseNo: Long,
     val jointAngles: Map<Int, JointAngle>,
-    val isExercise: Boolean,
+    val isActivate: Boolean,
 )

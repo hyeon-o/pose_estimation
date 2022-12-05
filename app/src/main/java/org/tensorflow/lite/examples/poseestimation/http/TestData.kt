@@ -15,13 +15,13 @@ interface TestData {
             0L to
                     Exercise(
                         exerciseNo = 0L,
-                        set = 3,
-                        count = 2,
-                        exerciseTime = 10,
-                        restTime = 5,
-                        rules = listOf(
-                            Rule(AnglePart.LEFT_KNEE, 170.0, 90.0, Rule.ExerciseContractionType.Flexion),
-                            Rule(AnglePart.RIGHT_KNEE, 170.0, 90.0, Rule.ExerciseContractionType.Flexion)
+                        circle = 2,
+                        rep = 2,
+                        circleTime = 10,
+                        restTime = 3,
+                        motions = listOf(
+                            Motion(AnglePart.LEFT_KNEE, 170.0, 90.0, Motion.ExerciseContractionType.Flexion),
+                            Motion(AnglePart.RIGHT_KNEE, 170.0, 90.0, Motion.ExerciseContractionType.Flexion)
                         )
                     )
 
@@ -35,20 +35,19 @@ data class User(
 
 data class Exercise(
     val exerciseNo: Long,
-    val set: Int,
-    val count: Int,
-    val exerciseTime: Int,
-    val restTime: Int,
-    val rules: List<Rule>,
+    val circle: Int,
+    val rep: Int,
+    val circleTime: Int, // 초단위
+    val restTime: Int, // 초단위
+    val motions: List<Motion>,
 )
 
-data class Rule(
+data class Motion(
     val anglePart: AnglePart,
     val start: Double,
     val end: Double,
     val type: ExerciseContractionType,
 ) {
-
     enum class ExerciseContractionType {
         // 각도 커짐
         Extension,

@@ -26,14 +26,14 @@ object ExerciseApi: TestData {
      */
     fun exercise(reqVo: ClientReqVo): ClientResVo {
 
-        val rules = exercise[reqVo.exerciseNo]!!.rules
+        val motions = exercise[reqVo.exerciseNo]!!.motions
 
-        var isExercise = false
+        var isActivate = false
         val assess = mutableMapOf<BodyPart, AssessType>()
 
         // 운동 동작 범위 체크
-        val countValue = rules.map {
-            if (it.type == Rule.ExerciseContractionType.Extension) {
+        val countValue = motions.map {
+            if (it.type == Motion.ExerciseContractionType.Extension) {
                 val start = it.end - it.end * (reqVo.userLevelType.countBtr) / 100
                 reqVo.jointAngles[it.anglePart.position]!!.angle >= start
             } else {
@@ -43,20 +43,20 @@ object ExerciseApi: TestData {
         }.all { it }
 
         // 운동 동작 준비 중 count 범위에 처음 도달했을 때
-        if (!reqVo.isExercise && countValue) {
-            isExercise = true
+        if (!reqVo.isActivate && countValue) {
+            isActivate = true
         }
 
         // 운동 동작 중일 때
-        if (reqVo.isExercise) {
+        if (reqVo.isActivate) {
             if (!countValue) {
                 // 운동 동작 범위에서 벗어났을 때
-                isExercise = false
+                isActivate = false
             } else {
                 // 운동 동작 범위에서 벗어나지 않았을 때
-                isExercise = true
+                isActivate = true
                 // angle 범위 체크 및 평가
-                rules.forEach {
+                motions.forEach {
                     val start = it.end - it.end * (reqVo.userLevelType.angleBtr) / 100
                     val end = it.end + it.end * (reqVo.userLevelType.angleBtr) / 100
                     val currentAssess =
@@ -70,7 +70,7 @@ object ExerciseApi: TestData {
             }
         }
 
-        return ClientResVo(isExercise = isExercise, assess = assess)
+        return ClientResVo(isActivate = isActivate, assess = assess)
     }
 }
 
