@@ -17,6 +17,5 @@ limitations under the License.
 package org.tensorflow.lite.examples.poseestimation.ml.data
 
 import android.graphics.PointF
-import org.tensorflow.lite.examples.poseestimation.ml.data.BodyPart
 
-data class KeyPoint(val bodyPart: BodyPart, var coordinate: PointF, val score: Float)
+data class BodyPartPoint(val bodyPart: BodyPart, var coordinate: PointF, val score: Float)

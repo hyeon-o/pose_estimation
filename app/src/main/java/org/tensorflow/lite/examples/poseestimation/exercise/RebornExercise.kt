@@ -48,7 +48,7 @@ class RebornExercise(
                     exerciseNo = exercise.exerciseNo,
                     countBtr = user.countBtr,
                     angleBtr = user.angleBtr,
-                    angles = person.jointAngles?.mapValues { it.value.toMap() } ?: emptyMap(),
+                    angles = person.jointAngles?.mapValues { it.value.toReq() } ?: emptyMap(),
                 )
             )
             call.enqueue(object : Callback<BaseResVo<ComputeExerciseResVo>> {

@@ -16,9 +16,11 @@ limitations under the License.
 
 package org.tensorflow.lite.examples.poseestimation.ml.data
 
+import org.tensorflow.lite.examples.poseestimation.http.model.ComputeExerciseAnglesReqVo
+
 data class JointAngle(val anglePart: AnglePart, val angle: Double) {
-    fun toMap() = mapOf(
-        "angleNo" to anglePart.position,
-        "angle" to angle
+    fun toReq() = ComputeExerciseAnglesReqVo(
+        angleNo = anglePart.position.toLong(),
+        angle = angle
     )
 }

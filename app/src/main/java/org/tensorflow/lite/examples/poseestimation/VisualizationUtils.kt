@@ -21,7 +21,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import org.tensorflow.lite.examples.poseestimation.ml.data.BodyPart
-import org.tensorflow.lite.examples.poseestimation.ml.data.PartType
 import org.tensorflow.lite.examples.poseestimation.ml.data.Person
 
 object VisualizationUtils {
@@ -36,21 +35,23 @@ object VisualizationUtils {
 
     /** Pair of keypoints to draw lines between.  */
     private val bodyJoints = listOf(
-        Triple(BodyPart.NOSE, BodyPart.LEFT_SHOULDER, PartType.Left),
-        Triple(BodyPart.NOSE, BodyPart.RIGHT_SHOULDER, PartType.Right),
-        Triple(BodyPart.LEFT_SHOULDER, BodyPart.LEFT_ELBOW, PartType.Left),
-        Triple(BodyPart.LEFT_ELBOW, BodyPart.LEFT_WRIST, PartType.Left),
-        Triple(BodyPart.RIGHT_SHOULDER, BodyPart.RIGHT_ELBOW, PartType.Right),
-        Triple(BodyPart.RIGHT_ELBOW, BodyPart.RIGHT_WRIST, PartType.Right),
-        Triple(BodyPart.LEFT_SHOULDER, BodyPart.RIGHT_SHOULDER, PartType.Middle),
-        Triple(BodyPart.LEFT_SHOULDER, BodyPart.LEFT_HIP, PartType.Left),
-        Triple(BodyPart.RIGHT_SHOULDER, BodyPart.RIGHT_HIP, PartType.Right),
-        Triple(BodyPart.LEFT_HIP, BodyPart.RIGHT_HIP, PartType.Middle),
-        Triple(BodyPart.LEFT_HIP, BodyPart.LEFT_KNEE, PartType.Left),
-        Triple(BodyPart.LEFT_KNEE, BodyPart.LEFT_ANKLE, PartType.Left),
-        Triple(BodyPart.RIGHT_HIP, BodyPart.RIGHT_KNEE, PartType.Right),
-        Triple(BodyPart.RIGHT_KNEE, BodyPart.RIGHT_ANKLE, PartType.Right)
+        Triple(BodyPart.NOSE, BodyPart.LEFT_SHOULDER, Type.Left),
+        Triple(BodyPart.NOSE, BodyPart.RIGHT_SHOULDER, Type.Right),
+        Triple(BodyPart.LEFT_SHOULDER, BodyPart.LEFT_ELBOW, Type.Left),
+        Triple(BodyPart.LEFT_ELBOW, BodyPart.LEFT_WRIST, Type.Left),
+        Triple(BodyPart.RIGHT_SHOULDER, BodyPart.RIGHT_ELBOW, Type.Right),
+        Triple(BodyPart.RIGHT_ELBOW, BodyPart.RIGHT_WRIST, Type.Right),
+        Triple(BodyPart.LEFT_SHOULDER, BodyPart.RIGHT_SHOULDER, Type.Middle),
+        Triple(BodyPart.LEFT_SHOULDER, BodyPart.LEFT_HIP, Type.Left),
+        Triple(BodyPart.RIGHT_SHOULDER, BodyPart.RIGHT_HIP, Type.Right),
+        Triple(BodyPart.LEFT_HIP, BodyPart.RIGHT_HIP, Type.Middle),
+        Triple(BodyPart.LEFT_HIP, BodyPart.LEFT_KNEE, Type.Left),
+        Triple(BodyPart.LEFT_KNEE, BodyPart.LEFT_ANKLE, Type.Left),
+        Triple(BodyPart.RIGHT_HIP, BodyPart.RIGHT_KNEE, Type.Right),
+        Triple(BodyPart.RIGHT_KNEE, BodyPart.RIGHT_ANKLE, Type.Right)
     )
+
+    enum class Type { Left, Middle, Right }
 
     // Draw line and point indicate body pose
     fun drawBodyKeypoints(
@@ -109,9 +110,9 @@ object VisualizationUtils {
                 val pointA = p.keyPoints[it.first.position]!!.coordinate
                 val pointB = p.keyPoints[it.second.position]!!.coordinate
                 val paintLine = when(it.third) {
-                    PartType.Left -> paintLineLeft
-                    PartType.Middle -> paintLineMiddle
-                    PartType.Right -> paintLineRight
+                    Type.Left -> paintLineLeft
+                    Type.Middle -> paintLineMiddle
+                    Type.Right -> paintLineRight
                 }
                 originalSizeCanvas.drawLine(pointA.x, pointA.y, pointB.x, pointB.y, paintLine)
             }

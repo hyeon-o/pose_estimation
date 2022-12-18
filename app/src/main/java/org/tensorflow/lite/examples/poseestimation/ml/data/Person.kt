@@ -17,7 +17,7 @@ limitations under the License.
 package org.tensorflow.lite.examples.poseestimation.ml.data
 
 data class Person(
-    val keyPoints: Map<Int, KeyPoint>,
+    val keyPoints: Map<Int, BodyPartPoint>,
     val jointAngles: Map<Int, JointAngle>? = null,
     val score: Float,
 )

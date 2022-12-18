@@ -149,6 +149,7 @@ class MainActivity : AppCompatActivity() {
                         response: Response<BaseResVo<Exercise>>
                     ) {
                         exercise = response.body()!!.data
+                        showToast("운동 데이터 조회 ${exercise!!.exerciseNo}")
 
                         // 운동 서비스 생성
                         rebornExercise = RebornExercise(user, exercise!!, object : RebornExercise.RebornExerciseListener {
@@ -161,7 +162,7 @@ class MainActivity : AppCompatActivity() {
                                     }
 
                                     override fun onFinish() {
-                                        rebornExercise!!.finishCircle()
+                                        rebornExercise?.finishCircle()
                                     }
                                 }
                                 RebornExercise.timer?.start()
@@ -189,11 +190,12 @@ class MainActivity : AppCompatActivity() {
                                 }
                             }
                         })
+                        cameraSource?.setRebornExercise(rebornExercise)
                     }
 
                     override fun onFailure(call: Call<BaseResVo<Exercise>>, t: Throwable) {
                         Log.e(null, null, t)
-                        showToast("운동 데이터 호출 실패")
+                        showToast("운동 데이터 조회 실패")
                     }
                 })
 
@@ -210,6 +212,7 @@ class MainActivity : AppCompatActivity() {
                 showToast("Exercise Finish")
 
                 rebornExercise = null
+                cameraSource?.setRebornExercise(rebornExercise)
                 chrProgram.stop()
 
                 // 컴포넌트 노출 비활성화
@@ -217,7 +220,6 @@ class MainActivity : AppCompatActivity() {
                 chrProgram.visibility = View.GONE
                 tvCircleTime.visibility = View.GONE
             }
-            cameraSource?.setRebornExercise(rebornExercise)
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -276,6 +278,7 @@ class MainActivity : AppCompatActivity() {
                 response: Response<BaseResVo<User>>
             ) {
                 user = response.body()!!.data
+                showToast("사용자 데이터 조회 ${user.userNm}")
             }
 
             override fun onFailure(call: Call<BaseResVo<User>>, t: Throwable) {

@@ -99,7 +99,7 @@ class MoveNet(
         var totalScore = 0f
 
         val numKeyPoints = outputShape[2]
-        val keyPoints = mutableMapOf<Int, KeyPoint>()
+        val keyPoints = mutableMapOf<Int, BodyPartPoint>()
 
         val jointAngles = mutableMapOf<Int, JointAngle>()
 
@@ -138,7 +138,7 @@ class MoveNet(
                     positions.add(x)
                     positions.add(y)
                     val score = output[idx * 3 + 2]
-                    keyPoints[idx] = KeyPoint(
+                    keyPoints[idx] = BodyPartPoint(
                         BodyPart.fromInt(idx),
                         PointF(
                             x,
@@ -241,7 +241,7 @@ class MoveNet(
      * This function checks whether the model is confident at predicting one of the
      * shoulders/hips which is required to determine a good crop region.
      */
-    private fun torsoVisible(keyPoints: List<KeyPoint>): Boolean {
+    private fun torsoVisible(keyPoints: List<BodyPartPoint>): Boolean {
         return ((keyPoints[BodyPart.LEFT_HIP.position].score > MIN_CROP_KEYPOINT_SCORE).or(
             keyPoints[BodyPart.RIGHT_HIP.position].score > MIN_CROP_KEYPOINT_SCORE
         )).and(
@@ -261,14 +261,14 @@ class MoveNet(
      * function returns a default crop which is the full image padded to square.
      */
     private fun determineRectF(
-        keyPoints: List<KeyPoint>,
+        keyPoints: List<BodyPartPoint>,
         imageWidth: Int,
         imageHeight: Int
     ): RectF {
-        val targetKeyPoints = mutableListOf<KeyPoint>()
+        val targetKeyPoints = mutableListOf<BodyPartPoint>()
         keyPoints.forEach {
             targetKeyPoints.add(
-                KeyPoint(
+                BodyPartPoint(
                     it.bodyPart,
                     PointF(
                         it.coordinate.x,
@@ -324,8 +324,8 @@ class MoveNet(
      * used to determine the crop size. See determineRectF for more detail.
      */
     private fun determineTorsoAndBodyDistances(
-        keyPoints: List<KeyPoint>,
-        targetKeyPoints: List<KeyPoint>,
+        bodyPartPoints: List<BodyPartPoint>,
+        targetKeyPoints: List<BodyPartPoint>,
         centerX: Float,
         centerY: Float
     ): TorsoAndBodyDistance {
@@ -347,10 +347,10 @@ class MoveNet(
 
         var maxBodyYRange = 0f
         var maxBodyXRange = 0f
-        for (joint in keyPoints.indices) {
-            if (keyPoints[joint].score < MIN_CROP_KEYPOINT_SCORE) continue
-            val distY = abs(centerY - keyPoints[joint].coordinate.y)
-            val distX = abs(centerX - keyPoints[joint].coordinate.x)
+        for (joint in bodyPartPoints.indices) {
+            if (bodyPartPoints[joint].score < MIN_CROP_KEYPOINT_SCORE) continue
+            val distY = abs(centerY - bodyPartPoints[joint].coordinate.y)
+            val distX = abs(centerX - bodyPartPoints[joint].coordinate.x)
 
             if (distY > maxBodyYRange) maxBodyYRange = distY
             if (distX > maxBodyXRange) maxBodyXRange = distX

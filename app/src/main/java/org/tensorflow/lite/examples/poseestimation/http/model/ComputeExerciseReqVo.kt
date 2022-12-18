@@ -5,5 +5,10 @@ data class ComputeExerciseReqVo (
     val exerciseNo: Long,
     val countBtr: Int,
     val angleBtr: Int,
-    val angles: Map<Int, Map<String, Any>>,
+    val angles: Map<Int, ComputeExerciseAnglesReqVo>,
+)
+
+data class ComputeExerciseAnglesReqVo (
+    val angleNo: Long,
+    val angle: Double,
 )
