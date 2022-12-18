@@ -25,6 +25,7 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Process
 import android.os.SystemClock
+import android.util.Log
 import android.view.SurfaceView
 import android.view.View
 import android.view.ViewGroup
@@ -39,15 +40,19 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.tensorflow.lite.examples.poseestimation.camera.CameraSource
 import org.tensorflow.lite.examples.poseestimation.exercise.RebornExercise
-import org.tensorflow.lite.examples.poseestimation.http.Exercise
-import org.tensorflow.lite.examples.poseestimation.http.ExerciseApi
-import org.tensorflow.lite.examples.poseestimation.http.User
+import org.tensorflow.lite.examples.poseestimation.http.HttpClient
+import org.tensorflow.lite.examples.poseestimation.http.model.BaseResVo
+import org.tensorflow.lite.examples.poseestimation.http.model.Exercise
+import org.tensorflow.lite.examples.poseestimation.http.model.User
 import org.tensorflow.lite.examples.poseestimation.ml.data.AnglePart
 import org.tensorflow.lite.examples.poseestimation.ml.data.BodyPart
 import org.tensorflow.lite.examples.poseestimation.ml.data.Device
 import org.tensorflow.lite.examples.poseestimation.ml.data.Person
 import org.tensorflow.lite.examples.poseestimation.ml.model.ModelType
 import org.tensorflow.lite.examples.poseestimation.ml.model.MoveNet
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -137,45 +142,58 @@ class MainActivity : AppCompatActivity() {
                 showToast("Exercise Start")
 
                 // 운동 데이터 조회
-                exercise = ExerciseApi.getExercise(0L)
+                val exerciseCall = HttpClient.rebornFitApi.getExercise(1)
+                exerciseCall.enqueue(object : Callback<BaseResVo<Exercise>> {
+                    override fun onResponse(
+                        call: Call<BaseResVo<Exercise>>,
+                        response: Response<BaseResVo<Exercise>>
+                    ) {
+                        exercise = response.body()!!.data
 
-                // 운동 서비스 생성
-                rebornExercise = RebornExercise(user, exercise!!, object : RebornExercise.RebornExerciseListener {
-                    override fun onExercise() {
-                        RebornExercise.timer = object : CountDownTimer(exercise!!.circleTime * 1000L, 1000) {
-                            override fun onTick(p0: Long) {
-                                val sec = p0.div(1000).toInt()
-                                tvCircleTime.setTextColor(Color.WHITE)
-                                tvCircleTime.text = sec.toString()
+                        // 운동 서비스 생성
+                        rebornExercise = RebornExercise(user, exercise!!, object : RebornExercise.RebornExerciseListener {
+                            override fun onExercise() {
+                                RebornExercise.timer = object : CountDownTimer(exercise!!.circleTime * 1000L, 1000) {
+                                    override fun onTick(p0: Long) {
+                                        val sec = p0.div(1000).toInt()
+                                        tvCircleTime.setTextColor(Color.WHITE)
+                                        tvCircleTime.text = sec.toString()
+                                    }
+
+                                    override fun onFinish() {
+                                        rebornExercise!!.finishCircle()
+                                    }
+                                }
+                                RebornExercise.timer?.start()
+                            }
+
+                            override fun onRest() {
+                                RebornExercise.timer = object : CountDownTimer(exercise!!.restTime * 1000L, 1000) {
+                                    override fun onTick(p0: Long) {
+                                        val sec = p0.div(1000).toInt()
+                                        tvCircleTime.setTextColor(Color.RED)
+                                        tvCircleTime.text = sec.toString()
+                                    }
+
+                                    override fun onFinish() {
+                                        rebornExercise!!.startCircle()
+                                    }
+                                }
+                                RebornExercise.timer?.start()
                             }
 
                             override fun onFinish() {
-                                rebornExercise!!.finishCircle()
+                                RebornExercise.timer = null
+                                runOnUiThread {
+                                    btn.toggle()
+                                }
                             }
-                        }
-                        RebornExercise.timer?.start()
+                        })
                     }
 
-                    override fun onRest() {
-                        RebornExercise.timer = object : CountDownTimer(exercise!!.restTime * 1000L, 1000) {
-                            override fun onTick(p0: Long) {
-                                val sec = p0.div(1000).toInt()
-                                tvCircleTime.setTextColor(Color.RED)
-                                tvCircleTime.text = sec.toString()
-                            }
-
-                            override fun onFinish() {
-                                rebornExercise!!.startCircle()
-                            }
-                        }
-                        RebornExercise.timer?.start()
-                    }
-
-                    override fun onFinish() {
-                        RebornExercise.timer = null
-                        runOnUiThread {
-                            btn.toggle()
-                        }
+                    override fun onFailure(call: Call<BaseResVo<Exercise>>, t: Throwable) {
+                        Log.e(null, null, t)
+                        showToast("운동 데이터 호출 실패")
                     }
                 })
 
@@ -250,7 +268,21 @@ class MainActivity : AppCompatActivity() {
             requestPermission()
         }
 
-        user = ExerciseApi.getUser(0)
+        // 사용자 데이터 조회
+        val userCall = HttpClient.rebornFitApi.getUser(1)
+        userCall.enqueue(object : Callback<BaseResVo<User>> {
+            override fun onResponse(
+                call: Call<BaseResVo<User>>,
+                response: Response<BaseResVo<User>>
+            ) {
+                user = response.body()!!.data
+            }
+
+            override fun onFailure(call: Call<BaseResVo<User>>, t: Throwable) {
+                Log.e(null, null, t)
+                showToast("사용자 데이터 조회 실패")
+            }
+        })
     }
 
     override fun onStart() {
@@ -328,9 +360,9 @@ class MainActivity : AppCompatActivity() {
                             runOnUiThread {
                                 tvExercise.text = getString(
                                     R.string.tfe_pe_tv_exercise,
-                                    rebornExercise?.circleCount, exercise?.circle,
-                                    rebornExercise?.repCount, exercise?.rep,
-                                    rebornExercise?.totalAssess?.name
+                                    rebornExercise?.circleCount, exercise?.circleCnt,
+                                    rebornExercise?.repCount, exercise?.repCnt,
+                                    rebornExercise?.totalAssess
                                 )
                             }
                         }

@@ -20,7 +20,6 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import org.tensorflow.lite.examples.poseestimation.exercise.data.AssessType
 import org.tensorflow.lite.examples.poseestimation.ml.data.BodyPart
 import org.tensorflow.lite.examples.poseestimation.ml.data.PartType
 import org.tensorflow.lite.examples.poseestimation.ml.data.Person
@@ -57,7 +56,7 @@ object VisualizationUtils {
     fun drawBodyKeypoints(
         input: Bitmap,
         person: Person?,
-        assess: Map<BodyPart, AssessType>
+        assess: Map<String, String>
     ): Bitmap {
 
         val paintLineLeft = Paint().apply {
@@ -125,9 +124,9 @@ object VisualizationUtils {
                             point.coordinate.x,
                             point.coordinate.y,
                             CIRCLE_RADIUS,
-                            when(assess[point.bodyPart]) {
-                                AssessType.Bad -> paintBadCircle
-                                AssessType.Good -> paintGoodCircle
+                            when(assess[point.bodyPart.position.toString()]) {
+                                "BAD" -> paintBadCircle
+                                "GOOD" -> paintGoodCircle
                                 else -> paintNoneCircle
                             }
                         )

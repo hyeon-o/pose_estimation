@@ -37,8 +37,6 @@ import org.tensorflow.lite.examples.poseestimation.VisualizationUtils
 import org.tensorflow.lite.examples.poseestimation.YuvToRgbConverter
 import org.tensorflow.lite.examples.poseestimation.ml.data.Person
 import org.tensorflow.lite.examples.poseestimation.exercise.RebornExercise
-import org.tensorflow.lite.examples.poseestimation.exercise.data.AssessType
-import org.tensorflow.lite.examples.poseestimation.ml.data.BodyPart
 import org.tensorflow.lite.examples.poseestimation.ml.model.PoseDetector
 import java.util.*
 import kotlin.coroutines.resume
@@ -248,7 +246,7 @@ class CameraSource(
         visualize(person, rebornExercise?.assess ?: emptyMap(), bitmap)
     }
 
-    private fun visualize(person: Person?, assess: Map<BodyPart, AssessType>, bitmap: Bitmap) {
+    private fun visualize(person: Person?, assess: Map<String, String>, bitmap: Bitmap) {
 
         val outputBitmap = VisualizationUtils.drawBodyKeypoints(
             bitmap,

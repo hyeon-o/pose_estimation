@@ -16,4 +16,9 @@ limitations under the License.
 
 package org.tensorflow.lite.examples.poseestimation.ml.data
 
-data class JointAngle(val anglePart: AnglePart, val angle: Double)
+data class JointAngle(val anglePart: AnglePart, val angle: Double) {
+    fun toMap() = mapOf(
+        "angleNo" to anglePart.position,
+        "angle" to angle
+    )
+}
