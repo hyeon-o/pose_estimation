@@ -16,6 +16,10 @@ limitations under the License.
 
 package org.tensorflow.lite.examples.poseestimation.ml.data
 
+/**
+ * 리본에서 작성한 각 관절각도에 대한 정의
+ * 3개의 BodyPart 이용
+ */
 enum class AnglePart(val position: Int, val points: Triple<BodyPart, BodyPart, BodyPart>) {
     LEFT_KNEE(1, Triple(BodyPart.LEFT_HIP, BodyPart.LEFT_KNEE, BodyPart.LEFT_ANKLE)),
     RIGHT_KNEE(2, Triple(BodyPart.RIGHT_HIP, BodyPart.RIGHT_KNEE, BodyPart.RIGHT_ANKLE)),

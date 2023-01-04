@@ -53,6 +53,8 @@ import org.tensorflow.lite.examples.poseestimation.ml.model.MoveNet
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.*
+import kotlin.concurrent.timer
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -73,11 +75,11 @@ class MainActivity : AppCompatActivity() {
     /** Default device is CPU */
     private var device = Device.CPU
 
-    // jhyeon: joint 정보 추가
     private lateinit var tbtnExercise: ToggleButton
     private lateinit var tvExercise: TextView
     private lateinit var chrProgram: Chronometer
     private lateinit var tvCircleTime: TextView
+    private lateinit var tvRestTime: TextView
     private lateinit var listJointAngle: LinearLayout
     private lateinit var jointAngleTvs: MutableMap<Int, TextView>
     private lateinit var listKeyPoint: LinearLayout
@@ -92,6 +94,8 @@ class MainActivity : AppCompatActivity() {
     private var cameraSource: CameraSource? = null
     private var exercise: Exercise? = null
     private var rebornExercise: RebornExercise? = null
+    private var exerciseTimer: CountDownTimer? = null
+    private var restTimer: CountDownTimer? = null
 
     private val requestPermissionLauncher =
         registerForActivityResult(
@@ -136,10 +140,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /* ==========================
+    운동 시작 버튼 리스너
+    ========================== */
     private var setExerciseListener =
         CompoundButton.OnCheckedChangeListener { btn, isChecked ->
             if (isChecked) {
-                showToast("Exercise Start")
+                Log.i("Exercise", "운동 토클 버튼 활성화")
 
                 // 운동 데이터 조회
                 val exerciseCall = HttpClient.rebornFitApi.getExercise(1)
@@ -154,37 +161,52 @@ class MainActivity : AppCompatActivity() {
                         // 운동 서비스 생성
                         rebornExercise = RebornExercise(user, exercise!!, object : RebornExercise.RebornExerciseListener {
                             override fun onExercise() {
-                                RebornExercise.timer = object : CountDownTimer(exercise!!.circleTime * 1000L, 1000) {
+                                showToast("운동 시작")
+
+                                tvRestTime.visibility = View.GONE
+                                tvCircleTime.visibility = View.VISIBLE
+
+                                exerciseTimer = object : CountDownTimer((exercise!!.circleTime + 1) * 1000L, 1000) {
                                     override fun onTick(p0: Long) {
                                         val sec = p0.div(1000).toInt()
-                                        tvCircleTime.setTextColor(Color.WHITE)
                                         tvCircleTime.text = sec.toString()
                                     }
 
                                     override fun onFinish() {
-                                        rebornExercise?.finishCircle()
+                                        Log.i("Exercise", "운동 타이머 종료")
+                                        if (exercise!!.type == "T") {
+                                            rebornExercise!!.finishCircle()
+                                        }
                                     }
                                 }
-                                RebornExercise.timer?.start()
+                                exerciseTimer!!.start()
+                                Log.i("Exercise", "운동 타이머 시작")
                             }
 
                             override fun onRest() {
-                                RebornExercise.timer = object : CountDownTimer(exercise!!.restTime * 1000L, 1000) {
+                                showToast("휴식 시작")
+
+                                tvCircleTime.visibility = View.GONE
+                                tvRestTime.visibility = View.VISIBLE
+
+                                restTimer = object : CountDownTimer((exercise!!.repTime + 1) * 1000L, 1000) {
                                     override fun onTick(p0: Long) {
                                         val sec = p0.div(1000).toInt()
-                                        tvCircleTime.setTextColor(Color.RED)
-                                        tvCircleTime.text = sec.toString()
+                                        tvRestTime.text = sec.toString()
                                     }
 
                                     override fun onFinish() {
+                                        Log.i("Exercise", "휴식 타이머 종료")
                                         rebornExercise!!.startCircle()
                                     }
                                 }
-                                RebornExercise.timer?.start()
+                                restTimer!!.start()
+                                Log.i("Exercise", "휴식 타이머 시작")
                             }
 
                             override fun onFinish() {
-                                RebornExercise.timer = null
+                                showToast("운동 종료")
+
                                 runOnUiThread {
                                     btn.toggle()
                                 }
@@ -194,7 +216,7 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     override fun onFailure(call: Call<BaseResVo<Exercise>>, t: Throwable) {
-                        Log.e(null, null, t)
+                        Log.e(t.message, t.message, t)
                         showToast("운동 데이터 조회 실패")
                     }
                 })
@@ -209,9 +231,11 @@ class MainActivity : AppCompatActivity() {
                 tvCircleTime.visibility = View.VISIBLE
 
             } else {
-                showToast("Exercise Finish")
+                Log.i("Exercise", "운동 토클 버튼 비활성화")
 
                 rebornExercise = null
+                exerciseTimer = null
+                restTimer = null
                 cameraSource?.setRebornExercise(rebornExercise)
                 chrProgram.stop()
 
@@ -219,6 +243,7 @@ class MainActivity : AppCompatActivity() {
                 tvExercise.visibility = View.GONE
                 chrProgram.visibility = View.GONE
                 tvCircleTime.visibility = View.GONE
+                tvRestTime.visibility = View.GONE
             }
         }
 
@@ -231,6 +256,7 @@ class MainActivity : AppCompatActivity() {
         tvExercise = findViewById(R.id.tvExercise)
         chrProgram = findViewById(R.id.chrProgram)
         tvCircleTime = findViewById(R.id.tvCircleTime)
+        tvRestTime = findViewById(R.id.tvRestTime)
 
         listJointAngle = findViewById(R.id.listJointAngle)
         jointAngleTvs = mutableMapOf()
@@ -278,11 +304,12 @@ class MainActivity : AppCompatActivity() {
                 response: Response<BaseResVo<User>>
             ) {
                 user = response.body()!!.data
+                Log.i("사용자데이터조회", user.userNm)
                 showToast("사용자 데이터 조회 ${user.userNm}")
             }
 
             override fun onFailure(call: Call<BaseResVo<User>>, t: Throwable) {
-                Log.e(null, null, t)
+                Log.e("사용자데이터조회", t.message, t)
                 showToast("사용자 데이터 조회 실패")
             }
         })

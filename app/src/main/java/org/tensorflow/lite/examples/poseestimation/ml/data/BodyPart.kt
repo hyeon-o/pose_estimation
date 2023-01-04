@@ -16,6 +16,9 @@ limitations under the License.
 
 package org.tensorflow.lite.examples.poseestimation.ml.data
 
+/**
+ * 무브넷에서 제공하는 분석 부위
+ */
 enum class BodyPart(val position: Int, val isShow: Boolean) {
     NOSE(0, true),
     LEFT_EYE(1, false),

@@ -1,6 +1,5 @@
 package org.tensorflow.lite.examples.poseestimation.exercise
 
-import android.os.CountDownTimer
 import android.util.Log
 import org.tensorflow.lite.examples.poseestimation.http.HttpClient
 import org.tensorflow.lite.examples.poseestimation.http.model.*
@@ -17,7 +16,6 @@ class RebornExercise(
 
     companion object {
         const val minScore: Float = 0.5f
-        var timer: CountDownTimer? = null
     }
 
     // 운동 동작 중
@@ -63,7 +61,7 @@ class RebornExercise(
                         // deactivate -> activate
                         // rep 카운트 증가
                         repCount++
-                    } else if (repCount == exercise.repCnt && isActivate && !resVo.isActivate) {
+                    } else if (exercise.type == "C" && repCount == exercise.repCnt && isActivate && !resVo.isActivate) {
                         // 목표 rep 카운트 달성
                         // activate -> deactivate
                         finishCircle()
@@ -88,7 +86,7 @@ class RebornExercise(
                 }
 
                 override fun onFailure(call: Call<BaseResVo<ComputeExerciseResVo>>, t: Throwable) {
-                    Log.e(null, null, t)
+                    Log.e(t.message, t.message, t)
                 }
             })
         }
@@ -100,9 +98,8 @@ class RebornExercise(
     }
 
     fun finishCircle() {
-        if (!isRest) {
-            circleCount++
-        }
+        circleCount++
+
         if (circleCount == exercise.circleCnt) {
             listener?.onFinish()
         } else {
