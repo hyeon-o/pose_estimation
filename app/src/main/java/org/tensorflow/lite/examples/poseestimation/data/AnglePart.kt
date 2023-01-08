@@ -17,10 +17,29 @@ limitations under the License.
 package org.tensorflow.lite.examples.poseestimation.data
 
 enum class AnglePart(val position: Int, val points: Triple<BodyPart, BodyPart, BodyPart>) {
-    LEFT_KNEE(0, Triple(BodyPart.LEFT_HIP, BodyPart.LEFT_KNEE, BodyPart.LEFT_ANKLE)),
-    RIGHT_KNEE(1, Triple(BodyPart.RIGHT_HIP, BodyPart.RIGHT_KNEE, BodyPart.RIGHT_ANKLE)),
-    LOWER_LEFT_HIP(2, Triple(BodyPart.RIGHT_HIP, BodyPart.LEFT_HIP, BodyPart.LEFT_KNEE)),
-    LOWER_RIGHT_HIP(3, Triple(BodyPart.LEFT_HIP, BodyPart.RIGHT_HIP, BodyPart.RIGHT_KNEE));
+    LS_N_RS(0, Triple(BodyPart.LEFT_SHOULDER, BodyPart.NOSE, BodyPart.RIGHT_SHOULDER)),
+    N_LS_RS(1, Triple(BodyPart.NOSE, BodyPart.LEFT_SHOULDER, BodyPart.RIGHT_SHOULDER)),
+    N_RS_LS(2, Triple(BodyPart.NOSE, BodyPart.RIGHT_SHOULDER, BodyPart.LEFT_SHOULDER)),
+    N_LS_LE(3, Triple(BodyPart.NOSE, BodyPart.LEFT_SHOULDER, BodyPart.LEFT_ELBOW)),
+    N_RS_RE(4, Triple(BodyPart.NOSE, BodyPart.RIGHT_SHOULDER, BodyPart.RIGHT_ELBOW)),
+    N_LS_LH(5, Triple(BodyPart.NOSE, BodyPart.LEFT_SHOULDER, BodyPart.LEFT_HIP)),
+    N_RS_RH(6, Triple(BodyPart.NOSE, BodyPart.RIGHT_SHOULDER, BodyPart.RIGHT_HIP)),
+    RS_LS_LE(7, Triple(BodyPart.RIGHT_SHOULDER, BodyPart.LEFT_SHOULDER, BodyPart.LEFT_ELBOW)),
+    LS_RS_RE(8, Triple(BodyPart.LEFT_SHOULDER, BodyPart.RIGHT_SHOULDER, BodyPart.RIGHT_ELBOW)),
+    RS_LS_LH(9, Triple(BodyPart.RIGHT_SHOULDER, BodyPart.LEFT_SHOULDER, BodyPart.LEFT_HIP)),
+    LS_RS_RH(10, Triple(BodyPart.LEFT_SHOULDER, BodyPart.RIGHT_SHOULDER, BodyPart.RIGHT_HIP)),
+    LS_LH_RH(11, Triple(BodyPart.LEFT_SHOULDER, BodyPart.LEFT_HIP, BodyPart.RIGHT_HIP)),
+    RS_RH_LH(12, Triple(BodyPart.RIGHT_SHOULDER, BodyPart.RIGHT_HIP, BodyPart.LEFT_HIP)),
+    LS_LH_LK(13, Triple(BodyPart.LEFT_SHOULDER, BodyPart.LEFT_HIP, BodyPart.LEFT_KNEE)),
+    RS_RH_RK(14, Triple(BodyPart.RIGHT_SHOULDER, BodyPart.RIGHT_HIP, BodyPart.RIGHT_KNEE)),
+    LS_LE_LW(15, Triple(BodyPart.LEFT_SHOULDER, BodyPart.LEFT_ELBOW, BodyPart.LEFT_WRIST)),
+    RS_RE_RW(16, Triple(BodyPart.RIGHT_SHOULDER, BodyPart.RIGHT_ELBOW, BodyPart.RIGHT_WRIST)),
+    LE_LS_LH(17, Triple(BodyPart.LEFT_ELBOW, BodyPart.LEFT_SHOULDER, BodyPart.LEFT_HIP)),
+    RE_RS_RH(18, Triple(BodyPart.RIGHT_ELBOW, BodyPart.RIGHT_SHOULDER, BodyPart.RIGHT_HIP)),
+    RH_LH_LK(19, Triple(BodyPart.RIGHT_HIP, BodyPart.LEFT_HIP, BodyPart.LEFT_KNEE)),
+    LH_RH_RK(20, Triple(BodyPart.LEFT_HIP, BodyPart.RIGHT_HIP, BodyPart.RIGHT_KNEE)),
+    LH_lK_LA(21, Triple(BodyPart.LEFT_HIP, BodyPart.LEFT_KNEE, BodyPart.LEFT_ANKLE)),
+    RH_RK_RA(22, Triple(BodyPart.RIGHT_HIP, BodyPart.RIGHT_KNEE, BodyPart.RIGHT_ANKLE));
 
     companion object {
         private val map = values().associateBy(AnglePart::position)
