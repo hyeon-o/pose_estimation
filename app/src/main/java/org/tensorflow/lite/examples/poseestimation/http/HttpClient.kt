@@ -8,7 +8,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 object HttpClient {
 
     // ngrok 을 이용해 도메인 임시 생성
-    private const val BASE_URL = "https://feb6-220-121-107-236.jp.ngrok.io/"
+    private const val BASE_URL = "https://3b00-183-96-89-2.jp.ngrok.io/"
 
     private val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)

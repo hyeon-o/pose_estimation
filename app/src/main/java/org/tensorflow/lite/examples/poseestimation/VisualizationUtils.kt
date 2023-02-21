@@ -20,6 +20,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import org.tensorflow.lite.examples.poseestimation.ml.data.AnglePart
 import org.tensorflow.lite.examples.poseestimation.ml.data.BodyPart
 import org.tensorflow.lite.examples.poseestimation.ml.data.Person
 
@@ -57,7 +58,7 @@ object VisualizationUtils {
     fun drawBodyKeypoints(
         input: Bitmap,
         person: Person?,
-        assess: Map<String, String>
+        assess: Map<AnglePart, String>
     ): Bitmap {
 
         val paintLineLeft = Paint().apply {
@@ -105,7 +106,8 @@ object VisualizationUtils {
         val originalSizeCanvas = Canvas(output)
         person?.let { p ->
 
-            // joint 간 선
+            // 부위별 joint 간 선
+            // 왼쪽: 빨강, 중간: 하양, 오른쪽: 파랑
             bodyJoints.forEach {
                 val pointA = p.keyPoints[it.first.position]!!.coordinate
                 val pointB = p.keyPoints[it.second.position]!!.coordinate
@@ -117,7 +119,18 @@ object VisualizationUtils {
                 originalSizeCanvas.drawLine(pointA.x, pointA.y, pointB.x, pointB.y, paintLine)
             }
 
-            // joint 동그라미
+            // 평가별 joint 동그라미
+            // GOOD: 초록, BAD: 빨강, NONE: 하양
+            // Angle의 대표 BodyPart는 두번째
+            val mainAngleAssess = mutableMapOf<Int, String>()
+            assess.forEach {
+                val value = mainAngleAssess[it.key.points.second.position]
+                mainAngleAssess[it.key.points.second.position] = value?.let { x ->
+                    if (x == "GOOD" && it.value == "GOOD") "GOOD"
+                    else "BAD"
+                } ?: it.value
+            }
+
             p.keyPoints.values
                 .forEach { point ->
                     if (point.bodyPart.isShow) {
@@ -125,7 +138,7 @@ object VisualizationUtils {
                             point.coordinate.x,
                             point.coordinate.y,
                             CIRCLE_RADIUS,
-                            when(assess[point.bodyPart.position.toString()]) {
+                            when(mainAngleAssess[point.bodyPart.position]) {
                                 "BAD" -> paintBadCircle
                                 "GOOD" -> paintGoodCircle
                                 else -> paintNoneCircle

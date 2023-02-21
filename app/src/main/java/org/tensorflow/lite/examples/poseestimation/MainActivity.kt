@@ -20,7 +20,6 @@ import android.Manifest
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Process
@@ -53,8 +52,6 @@ import org.tensorflow.lite.examples.poseestimation.ml.model.MoveNet
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.util.*
-import kotlin.concurrent.timer
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -166,7 +163,7 @@ class MainActivity : AppCompatActivity() {
                                 tvRestTime.visibility = View.GONE
                                 tvCircleTime.visibility = View.VISIBLE
 
-                                exerciseTimer = object : CountDownTimer((exercise!!.circleTime + 1) * 1000L, 1000) {
+                                exerciseTimer = object : CountDownTimer((user.repTime + 1) * 1000L, 1000) {
                                     override fun onTick(p0: Long) {
                                         val sec = p0.div(1000).toInt()
                                         tvCircleTime.text = sec.toString()
@@ -189,7 +186,7 @@ class MainActivity : AppCompatActivity() {
                                 tvCircleTime.visibility = View.GONE
                                 tvRestTime.visibility = View.VISIBLE
 
-                                restTimer = object : CountDownTimer((exercise!!.repTime + 1) * 1000L, 1000) {
+                                restTimer = object : CountDownTimer((user.restTime + 1) * 1000L, 1000) {
                                     override fun onTick(p0: Long) {
                                         val sec = p0.div(1000).toInt()
                                         tvRestTime.text = sec.toString()
@@ -391,8 +388,7 @@ class MainActivity : AppCompatActivity() {
                                 tvExercise.text = getString(
                                     R.string.tfe_pe_tv_exercise,
                                     rebornExercise?.circleCount, exercise?.circleCnt,
-                                    rebornExercise?.repCount, exercise?.repCnt,
-                                    rebornExercise?.totalAssess
+                                    rebornExercise?.repCount, user.repCnt
                                 )
                             }
                         }

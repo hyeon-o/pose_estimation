@@ -4,8 +4,9 @@ data class ComputeExerciseReqVo (
     val isActivate: Boolean,
     val exerciseNo: Long,
     val countBtr: Int,
-    val angleBtr: Int,
-    val angles: Map<Int, ComputeExerciseAnglesReqVo>,
+    val assessBtr: Int,
+    val angles: List<ComputeExerciseAnglesReqVo>,
+    val motions: List<Motion>,
 )
 
 data class ComputeExerciseAnglesReqVo (

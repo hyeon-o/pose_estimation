@@ -3,6 +3,7 @@ package org.tensorflow.lite.examples.poseestimation.exercise
 import android.util.Log
 import org.tensorflow.lite.examples.poseestimation.http.HttpClient
 import org.tensorflow.lite.examples.poseestimation.http.model.*
+import org.tensorflow.lite.examples.poseestimation.ml.data.AnglePart
 import org.tensorflow.lite.examples.poseestimation.ml.data.Person
 import retrofit2.Call
 import retrofit2.Callback
@@ -25,7 +26,7 @@ class RebornExercise(
 
     var circleCount: Int = 0
     var repCount: Int = 0
-    var assess: Map<String, String> = emptyMap()
+    var assess: Map<AnglePart, String> = emptyMap()
     var totalAssess: String = ""
 
     init {
@@ -45,8 +46,9 @@ class RebornExercise(
                     isActivate = isActivate,
                     exerciseNo = exercise.exerciseNo,
                     countBtr = user.countBtr,
-                    angleBtr = user.angleBtr,
-                    angles = person.jointAngles?.mapValues { it.value.toReq() } ?: emptyMap(),
+                    assessBtr = user.angleBtr,
+                    angles = person.jointAngles?.map { it.value.toReq() } ?: emptyList(),
+                    motions = exercise.motions,
                 )
             )
             call.enqueue(object : Callback<BaseResVo<ComputeExerciseResVo>> {
@@ -61,28 +63,28 @@ class RebornExercise(
                         // deactivate -> activate
                         // rep 카운트 증가
                         repCount++
-                    } else if (exercise.type == "C" && repCount == exercise.repCnt && isActivate && !resVo.isActivate) {
+                    } else if (exercise.type == "C" && repCount == user.repCnt && isActivate && !resVo.isActivate) {
                         // 목표 rep 카운트 달성
                         // activate -> deactivate
                         finishCircle()
                     }
                     isActivate = resVo.isActivate
 
-                    // BodyPart별 평가
-                    assess = resVo.assess
+                    // ANGLE 별 평가
+                    assess = resVo.assess.mapKeys { AnglePart.fromInt(it.key) }
 
-                    // 종합 평가
-                    if (resVo.assess.isNotEmpty()) {
-                        resVo.assess.values.forEach {
-                            if (totalAssess.isNotBlank()) {
-                                totalAssess = it
-                            } else if (totalAssess == "GOOD" && it == "GOOD") {
-                                totalAssess = "GOOD"
-                            } else {
-                                totalAssess = "BAD"
-                            }
-                        }
-                    }
+//                    // 종합 평가
+//                    if (resVo.assess.isNotEmpty()) {
+//                        resVo.assess.values.forEach {
+//                            if (totalAssess.isNotBlank()) {
+//                                totalAssess = it
+//                            } else if (totalAssess == "GOOD" && it == "GOOD") {
+//                                totalAssess = "GOOD"
+//                            } else {
+//                                totalAssess = "BAD"
+//                            }
+//                        }
+//                    }
                 }
 
                 override fun onFailure(call: Call<BaseResVo<ComputeExerciseResVo>>, t: Throwable) {
